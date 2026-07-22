@@ -2,7 +2,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial, sans-serif;
+font-family:'Poppins',sans-serif;
 }
 
 body{
@@ -11,92 +11,62 @@ color:#fff;
 }
 
 header{
+position:fixed;
+top:0;
+left:0;
+width:100%;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:20px 40px;
-background:#111;
-border-bottom:3px solid #22c55e;
+padding:20px 50px;
+background:rgba(0,0,0,.75);
+backdrop-filter:blur(10px);
+z-index:1000;
 }
 
 .logo h1{
-color:#22c55e;
-font-size:38px;
+color:#2ecc71;
+font-size:34px;
+font-weight:700;
 }
 
 .logo p{
+font-size:13px;
 color:#fff;
-font-size:14px;
+letter-spacing:3px;
 }
 
 nav a{
 color:#fff;
 text-decoration:none;
-margin-left:20px;
-font-weight:bold;
+margin-left:25px;
+font-weight:500;
 transition:.3s;
 }
 
 nav a:hover{
-color:#22c55e;
+color:#2ecc71;
 }
 
 .hero{
-height:80vh;
+height:100vh;
 display:flex;
-flex-direction:column;
 justify-content:center;
 align-items:center;
 text-align:center;
-background:linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,.75)),url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1600&q=80");
+background:linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
+url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1600&q=80");
 background-size:cover;
 background-position:center;
 }
 
-.hero h2{
-font-size:55px;
-color:#22c55e;
-}
-
-.hero p{
-margin-top:15px;
-font-size:22px;
-}
-
-button{
-margin-top:25px;
-padding:15px 35px;
-background:#22c55e;
-border:none;
-color:#fff;
-font-size:18px;
-border-radius:8px;
-cursor:pointer;
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:25px;
-padding:50px;
-}
-
-.card{
-background:#151515;
-padding:30px;
-border-radius:15px;
-border:2px solid #22c55e;
-text-align:center;
-}
-
-.card h3{
+.overlay h2{
+font-size:60px;
+color:#2ecc71;
 margin-bottom:15px;
-color:#22c55e;
 }
 
-footer{
-text-align:center;
-padding:20px;
-background:#111;
-margin-top:40px;
-  }
+.overlay p{
+font-size:22px;
+margin-bottom:25px;
+}
