@@ -153,3 +153,25 @@ font-size:18px;
 }
 
 }
+.match-box{
+    max-width:600px;
+    margin:30px auto;
+    padding:25px;
+    background:#111;
+    border:2px solid #32d26e;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(50,210,110,.4);
+}
+
+.match-box h3{
+    color:#32d26e;
+    margin-bottom:15px;
+    font-size:28px;
+}
+
+.match-box p{
+    color:#ddd;
+    margin:8px 0;
+    font-size:18px;
+}
