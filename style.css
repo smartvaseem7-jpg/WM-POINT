@@ -175,3 +175,27 @@ font-size:18px;
     margin:8px 0;
     font-size:18px;
 }
+.live-score{
+    max-width:600px;
+    margin:40px auto;
+    padding:25px;
+    background:#181818;
+    border-left:6px solid red;
+    border-radius:15px;
+    text-align:center;
+}
+
+.live-score h2{
+    color:red;
+    margin-bottom:15px;
+}
+
+.live-score h3{
+    color:#32d26e;
+    margin-bottom:10px;
+}
+
+.live-score p{
+    color:#fff;
+    margin:8px 0;
+}
