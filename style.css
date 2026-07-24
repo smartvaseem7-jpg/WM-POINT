@@ -252,3 +252,37 @@ color:#fff;
 tr:hover{
 background:#1f1f1f;
     }
+.score-card{
+max-width:500px;
+margin:30px auto;
+background:#111;
+padding:25px;
+border-radius:20px;
+border:2px solid #32d26e;
+text-align:center;
+box-shadow:0 0 20px rgba(50,210,110,.4);
+}
+
+.score-card h1{
+font-size:50px;
+color:#32d26e;
+margin:10px 0;
+}
+
+.score-card h3{
+font-size:28px;
+color:#fff;
+}
+
+.score-card p{
+font-size:18px;
+color:#ddd;
+}
+
+.status{
+margin-top:20px;
+background:red;
+padding:10px;
+border-radius:10px;
+font-weight:bold;
+}
