@@ -13,8 +13,8 @@
     --bg-alt:#0d1c13;
     --card:#102418;
     --line:#1c3524;
-    --green:#14a05a;
-    --green-bright:#2be878;
+    --green:#1565d8;
+    --green-bright:#4da3ff;
     --gold:#c9a24b;
     --text:#eaf2ec;
     --muted:#8fa79a;
@@ -91,7 +91,7 @@
     padding:120px 24px 60px;
     position:relative;
     background:
-      radial-gradient(circle at 80% 20%, rgba(20,160,90,0.18), transparent 55%),
+      radial-gradient(circle at 80% 20%, rgba(21,101,216,0.18), transparent 55%),
       radial-gradient(circle at 10% 80%, rgba(201,162,75,0.08), transparent 45%),
       var(--bg);
   }
@@ -125,9 +125,20 @@
     transition:transform .2s, box-shadow .2s;
     width:fit-content;
   }
-  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(43,232,120,0.25);}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(77,163,255,0.25);}
   .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);}
   .btn.small{padding:10px 18px;font-size:0.75rem;margin-top:0;}
+
+  /* ===== VIEW SWITCHING (Home / Daily Match / Tournament / Gallery / Contact) ===== */
+  .view{display:none;}
+  .view.active{display:block;}
+  .back-row{max-width:1180px;margin:100px auto 0;padding:0 24px;}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono';font-size:0.78rem;color:var(--gold);
+    letter-spacing:0.06em;cursor:pointer;
+  }
+  .back-link:hover{color:var(--green-bright);}
 
   .home-choice{
     display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px;max-width:640px;
@@ -145,7 +156,7 @@
 
   .hero-logo{
     width:150px;height:150px;object-fit:contain;
-    margin-bottom:22px;filter:drop-shadow(0 10px 30px rgba(43,232,120,0.25));
+    margin-bottom:22px;filter:drop-shadow(0 10px 30px rgba(77,163,255,0.25));
   }
 
   /* ===== CAPTAIN SPOTLIGHT ===== */
@@ -181,7 +192,7 @@
     border-radius:14px;
     padding:30px;
     position:relative;
-    box-shadow:inset 0 0 60px rgba(43,232,120,0.05), 0 20px 50px rgba(0,0,0,0.4);
+    box-shadow:inset 0 0 60px rgba(77,163,255,0.05), 0 20px 50px rgba(0,0,0,0.4);
   }
   .live-badge{
     display:inline-flex;align-items:center;gap:8px;
@@ -203,7 +214,7 @@
     font-family:'JetBrains Mono';font-weight:700;
     font-size:clamp(2.6rem,9vw,3.6rem);
     color:var(--green-bright);
-    text-shadow:0 0 24px rgba(43,232,120,0.45);
+    text-shadow:0 0 24px rgba(77,163,255,0.45);
     letter-spacing:0.02em;
   }
   .score-sub{font-family:'JetBrains Mono';color:var(--muted);font-size:0.85rem;margin-top:4px;}
@@ -421,21 +432,26 @@
     <div>SUPER FRIENDS<span>WM POINT CRICKET CLUB</span></div>
   </div>
   <nav>
-    <a href="#dailymatch">Daily Match</a>
-    <a href="#tournament">Tournament</a>
-    <a href="#gallery">Gallery</a>
-    <a href="#contact">Contact</a>
+    <a href="javascript:void(0)" onclick="showView('home')">Home</a>
+    <a href="javascript:void(0)" onclick="showView('dailymatch')">Daily Match</a>
+    <a href="javascript:void(0)" onclick="showView('tournament')">Tournament</a>
+    <a href="javascript:void(0)" onclick="showView('gallery')">Gallery</a>
+    <a href="javascript:void(0)" onclick="showView('contact')">Contact</a>
   </nav>
   <button class="burger" onclick="document.getElementById('mnav').classList.toggle('open')">
     <span></span><span></span><span></span>
   </button>
 </header>
 <div class="mobile-nav" id="mnav" style="display:none;">
-  <a href="#dailymatch">🏏 Daily Match</a>
-  <a href="#tournament">🏆 Tournament</a>
-  <a href="#gallery">Gallery</a>
-  <a href="#contact">Contact</a>
+  <a href="javascript:void(0)" onclick="showView('home')">🏠 Home</a>
+  <a href="javascript:void(0)" onclick="showView('dailymatch')">🏏 Daily Match</a>
+  <a href="javascript:void(0)" onclick="showView('tournament')">🏆 Tournament</a>
+  <a href="javascript:void(0)" onclick="showView('gallery')">Gallery</a>
+  <a href="javascript:void(0)" onclick="showView('contact')">Contact</a>
 </div>
+
+<!-- ========== HOME VIEW ========== -->
+<div class="view active" id="view-home">
 
 <!-- HERO -->
 <section class="hero" style="padding-top:120px;">
@@ -445,12 +461,12 @@
   <p class="hero-sub">Live scores, squads, stats and results for SUPER FRIENDS — built by the club, for the club. Every run, every wicket, updated as it happens.</p>
 
   <div class="home-choice">
-    <a href="#dailymatch" class="home-card">
+    <a href="javascript:void(0)" onclick="showView('dailymatch')" class="home-card">
       <div class="home-card-icon">🏏</div>
       <h3>Daily Match</h3>
       <p>Today's match, live score, result & gallery</p>
     </a>
-    <a href="#tournament" class="home-card gold">
+    <a href="javascript:void(0)" onclick="showView('tournament')" class="home-card gold">
       <div class="home-card-icon">🏆</div>
       <h3>Tournament</h3>
       <p>Schedule, points table, knockout & champion</p>
@@ -470,8 +486,12 @@
   </div>
 </section>
 
-<!-- DAILY MATCH -->
-<div id="dailymatch"></div>
+</div>
+<!-- ========== END HOME VIEW ========== -->
+
+<!-- ========== DAILY MATCH VIEW ========== -->
+<div class="view" id="view-dailymatch">
+<div class="back-row"><a href="javascript:void(0)" onclick="showView('home')" class="back-link">← Home</a></div>
 
 <!-- LIVE SCORE -->
 <section id="live">
@@ -599,8 +619,12 @@
   </div>
 </section>
 
-<!-- TOURNAMENT -->
-<div id="tournament"></div>
+</div>
+<!-- ========== END DAILY MATCH VIEW ========== -->
+
+<!-- ========== TOURNAMENT VIEW ========== -->
+<div class="view" id="view-tournament">
+<div class="back-row"><a href="javascript:void(0)" onclick="showView('home')" class="back-link">← Home</a></div>
 
 <!-- STATS -->
 <section id="stats">
@@ -702,6 +726,13 @@
   </div>
 </section>
 
+</div>
+<!-- ========== END TOURNAMENT VIEW ========== -->
+
+<!-- ========== GALLERY VIEW ========== -->
+<div class="view" id="view-gallery">
+<div class="back-row"><a href="javascript:void(0)" onclick="showView('home')" class="back-link">← Home</a></div>
+
 <!-- GALLERY -->
 <section id="gallery">
   <div class="section-head">
@@ -718,6 +749,13 @@
   </div>
 </section>
 
+</div>
+<!-- ========== END GALLERY VIEW ========== -->
+
+<!-- ========== CONTACT VIEW ========== -->
+<div class="view" id="view-contact">
+<div class="back-row"><a href="javascript:void(0)" onclick="showView('home')" class="back-link">← Home</a></div>
+
 <!-- CONTACT -->
 <section id="contact">
   <div class="section-head">
@@ -730,6 +768,9 @@
     <div class="contact-item"><b>Club</b>WM POINT — SUPER FRIENDS Cricket Club</div>
   </div>
 </section>
+
+</div>
+<!-- ========== END CONTACT VIEW ========== -->
 
 <footer>© 2026 WM POINT — <span>SUPER FRIENDS</span> Cricket Club. All rights reserved.</footer>
 
@@ -763,6 +804,15 @@ try {
   firebaseReady = true;
 } catch (e) {
   console.warn("Firebase not connected yet — paste your config above.", e);
+}
+
+/* ---- View switching: Home / Daily Match / Tournament / Gallery / Contact ---- */
+function showView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  const target = document.getElementById("view-" + name);
+  if (target) target.classList.add("active");
+  window.scrollTo(0, 0);
+  document.getElementById("mnav").classList.remove("open");
 }
 
 const liveRef = () => db.ref("liveMatch");
@@ -829,7 +879,7 @@ function saveNamesStatus() {
   const statusEl = document.getElementById("saveStatus");
   if (!firebaseReady) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Firebase config missing."; return; }
   liveRef().update({ t1name:t1name.value, t2name:t2name.value, statusline:statusline.value, updatedAt:Date.now() })
-    .then(()=>{ statusEl.style.color="#2be878"; statusEl.textContent="✔ Saved."; });
+    .then(()=>{ statusEl.style.color="#4da3ff"; statusEl.textContent="✔ Saved."; });
 }
 
 /* ---- Ball-by-ball scoring engine ---- */
@@ -868,7 +918,7 @@ function swapBatting() {
 function undoLast() {
   const statusEl = document.getElementById("saveStatus");
   if (!lastState) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Nothing to undo."; return; }
-  liveRef().set(lastState).then(()=>{ statusEl.style.color="#2be878"; statusEl.textContent="✔ Undone."; lastState=null; });
+  liveRef().set(lastState).then(()=>{ statusEl.style.color="#4da3ff"; statusEl.textContent="✔ Undone."; lastState=null; });
 }
 function resetMatch() {
   if (!confirm("Reset the whole match to 0?")) return;
@@ -951,7 +1001,7 @@ function addPlayer() {
 
   function save(photoData) {
     playersRef().push({ name, role, photo: photoData || "" }).then(() => {
-      statusEl.style.color = "#2be878";
+      statusEl.style.color = "#4da3ff";
       statusEl.textContent = "✔ Player added.";
       document.getElementById("playerName").value = "";
       document.getElementById("playerPhoto").value = "";
