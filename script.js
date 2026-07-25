@@ -95,3 +95,131 @@ setTimeout(()=>{
 console.log("Welcome to WM POINT - SUPER FRIENDS");
 
 },1500);
+// ============================
+// WM POINT PART 4 FEATURES
+// ============================
+
+
+// Mobile Menu
+
+const menuBtn = document.createElement("div");
+
+menuBtn.innerHTML = "☰";
+menuBtn.className = "menu-btn";
+
+document.querySelector("header").appendChild(menuBtn);
+
+
+menuBtn.onclick = () => {
+
+document.querySelector("nav ul")
+.classList.toggle("show");
+
+};
+
+
+// Match Countdown
+
+let matchDate = new Date("August 10, 2026 16:00:00").getTime();
+
+
+setInterval(()=>{
+
+let now = new Date().getTime();
+
+let distance = matchDate - now;
+
+
+let days = Math.floor(distance/(1000*60*60*24));
+
+let hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+
+let minutes = Math.floor((distance%(1000*60*60))/(1000*60));
+
+
+let timer = document.querySelector(".countdown");
+
+
+if(timer){
+
+timer.innerHTML =
+days+" Days "+
+hours+" Hours "+
+minutes+" Minutes";
+
+}
+
+
+},1000);
+
+
+
+// Scroll Top Button
+
+const topBtn=document.createElement("button");
+
+topBtn.innerHTML="↑";
+
+topBtn.className="top-btn";
+
+document.body.appendChild(topBtn);
+
+
+window.onscroll=()=>{
+
+if(window.scrollY>400){
+
+topBtn.style.display="block";
+
+}else{
+
+topBtn.style.display="none";
+
+}
+
+};
+
+
+topBtn.onclick=()=>{
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+};
+
+
+
+// Player Counter Animation
+
+let counters=document.querySelectorAll(".counter");
+
+
+counters.forEach(counter=>{
+
+let value=0;
+
+let target=counter.dataset.number;
+
+
+let timer=setInterval(()=>{
+
+value++;
+
+counter.innerHTML=value;
+
+
+if(value>=target){
+
+clearInterval(timer);
+
+}
+
+},20);
+
+
+});
