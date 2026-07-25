@@ -3,88 +3,394 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> WM POINT| Play • Score • Win</title>
+
+<title>WM POINT | SUPER FRIENDS Cricket Club</title>
 
 <link rel="stylesheet" href="style.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
 </head>
 
 <body>
 
+<!--================ HEADER ================-->
+
 <header>
 
 <div class="logo">
-<img src="IMG-20260723-WA0047.jpg" alt="WM POINT Logo">
+
+<img src="images/logo.png" alt="SUPER FRIENDS">
+
 <div>
-<h1>WM POINT</h1>
-<p>PLAY • SCORE • WIN</p>
+
+<h2>WM POINT</h2>
+
+<span>SUPER FRIENDS CRICKET CLUB</span>
+
 </div>
+
 </div>
 
 <nav>
 
-<a href="#">Home</a>
+<ul>
 
-<a href="#">Matches</a>
+<li><a href="#home">Home</a></li>
 
-<a href="#">Players</a>
+<li><a href="#live">Live</a></li>
 
-<a href="#">Results</a>
+<li><a href="#matches">Matches</a></li>
 
-<a href="#">Gallery</a>
+<li><a href="#teams">Teams</a></li>
 
-<a href="#">Contact</a>
+<li><a href="#players">Players</a></li>
+
+<li><a href="#gallery">Gallery</a></li>
+
+<li><a href="#about">About</a></li>
+
+<li><a href="#contact">Contact</a></li>
+
+</ul>
 
 </nav>
 
 </header>
 
-<section class="hero">
+<!--================ HERO ================-->
 
-<div class="overlay">
+<section class="hero" id="home">
 
-<h2>WELCOME TO WM POINT</h2>
+<div class="hero-content">
+
+<h1>WELCOME TO</h1>
+
+<h2>WM POINT</h2>
+
+<h3>SUPER FRIENDS CRICKET CLUB</h3>
 
 <p>
-The Ultimate Cricket Experience
+Live Scores • Tournaments • Fixtures • Results • Statistics
 </p>
 
-<a href="#" class="btn">
-VIEW MATCHES
+<a href="#live" class="btn">
+LIVE SCORE
 </a>
 
 </div>
 
 </section>
 
-<section class="features">
+<!--================ LIVE SCORE ================-->
 
-<div class="score-card">
+<section class="live" id="live">
 
-<h3>TEAM 1</h3>
-<h1>0/0</h1>
-<p>Overs : 0.0</p>
+<h2 class="title">LIVE MATCH</h2>
 
-<hr>
+<div class="live-card">
 
-<h3>TEAM 2</h3>
-<p>Yet to Bat</p>
+<div class="team">
 
-<div class="status">
-🔴 LIVE MATCH
+<img src="images/team1.png">
+
+<h3>SUPER FRIENDS</h3>
+
+</div>
+
+<div class="score">
+
+<h1>124 / 3</h1>
+
+<p>15.2 Overs</p>
+
+<span class="live-dot"></span>
+
+LIVE
+
+</div>
+
+<div class="team">
+
+<img src="images/team2.png">
+
+<h3>ROYAL KINGS</h3>
+
 </div>
 
 </div>
 
 </section>
 
-<footer>
+<!--================ UPCOMING ================-->
+
+<section class="matches" id="matches">
+
+<h2 class="title">
+
+Upcoming Matches
+
+</h2>
+
+<div class="match-card">
+
+<h3>SUPER FRIENDS</h3>
+
+<p>VS</p>
+
+<h3>WARRIORS</h3>
+
+<span>
+
+Sunday | 4:00 PM
+
+</span>
+
+</div>
+
+<div class="match-card">
+
+<h3>SUPER FRIENDS</h3>
+
+<p>VS</p>
+
+<h3>TIGERS</h3>
+
+<span>
+
+Next Week
+
+</span>
+
+</div>
+
+</section>
+
+<!--================ POINT TABLE ================-->
+
+<section class="points">
+
+<h2 class="title">
+
+Tournament Points Table
+
+</h2>
+
+<table>
+
+<tr>
+
+<th>Team</th>
+
+<th>M</th>
+
+<th>W</th>
+
+<th>L</th>
+
+<th>PTS</th>
+
+</tr>
+
+<tr>
+
+<td>SUPER FRIENDS</td>
+
+<td>4</td>
+
+<td>4</td>
+
+<td>0</td>
+
+<td>8</td>
+
+</tr>
+
+<tr>
+
+<td>ROYAL KINGS</td>
+
+<td>4</td>
+
+<td>3</td>
+
+<td>1</td>
+
+<td>6</td>
+
+</tr>
+
+<tr>
+
+<td>TIGERS</td>
+
+<td>4</td>
+
+<td>2</td>
+
+<td>2</td>
+
+<td>4</td>
+
+</tr>
+
+<tr>
+
+<td>WARRIORS</td>
+
+<td>4</td>
+
+<td>1</td>
+
+<td>3</td>
+
+<td>2</td>
+
+</tr>
+
+</table>
+
+</section>
+
+<!--================ PLAYERS ================-->
+
+<section class="players" id="players">
+
+<h2 class="title">
+
+Star Players
+
+</h2>
+
+<div class="player-box">
+
+<div class="player">
+
+<img src="images/player1.png">
+
+<h3>Captain</h3>
+
+</div>
+
+<div class="player">
+
+<img src="images/player2.png">
+
+<h3>Batsman</h3>
+
+</div>
+
+<div class="player">
+
+<img src="images/player3.png">
+
+<h3>Bowler</h3>
+
+</div>
+
+<div class="player">
+
+<img src="images/player4.png">
+
+<h3>All Rounder</h3>
+
+</div>
+
+</div>
+
+</section>
+
+<!--================ GALLERY ================-->
+
+<section id="gallery">
+
+<h2 class="title">
+
+Gallery
+
+</h2>
+
+<div class="gallery">
+
+<img src="images/1.jpg">
+
+<img src="images/2.jpg">
+
+<img src="images/3.jpg">
+
+<img src="images/4.jpg">
+
+<img src="images/5.jpg">
+
+<img src="images/6.jpg">
+
+</div>
+
+</section>
+
+<!--================ ABOUT ================-->
+
+<section class="about" id="about">
+
+<h2 class="title">
+
+About SUPER FRIENDS
+
+</h2>
 
 <p>
 
-© 2026 WM POINT
+SUPER FRIENDS Cricket Club is dedicated to promoting cricket,
+sportsmanship and teamwork. WM POINT provides live scores,
+fixtures, match results, player statistics and tournament updates.
+
+</p>
+
+</section>
+
+<!--================ CONTACT ================-->
+
+<section class="contact" id="contact">
+
+<h2 class="title">
+
+Contact
+
+</h2>
+
+<p>
+
+Email : superfriends@gmail.com
+
+</p>
+
+<p>
+
+Phone : +94 7X XXX XXXX
+
+</p>
+
+</section>
+
+<!--================ FOOTER ================-->
+
+<footer>
+
+<h2>
+
+WM POINT
+
+</h2>
+
+<p>
+
+© 2026 WM POINT | SUPER FRIENDS Cricket Club
 
 </p>
 
@@ -93,4 +399,5 @@ VIEW MATCHES
 <script src="script.js"></script>
 
 </body>
+
 </html>
