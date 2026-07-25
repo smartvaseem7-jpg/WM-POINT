@@ -223,3 +223,24 @@ clearInterval(timer);
 
 
 });
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC3qHN28dqPBFnNQ2jLSmYuejPPrd0T2mQ",
+  authDomain: "wm-point.firebaseapp.com",
+  projectId: "wm-point",
+  storageBucket: "wm-point.firebasestorage.app",
+  messagingSenderId: "114760357274",
+  appId: "1:114760357274:web:0a4bf908703cf352d51623",
+  measurementId: "G-EW8PXFGCCH"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
