@@ -205,6 +205,27 @@
   .lock-row{display:flex;gap:10px;}
   @media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
 
+  .run-btns{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:8px;}
+  .run-btn{
+    background:var(--bg-alt);border:1px solid var(--line);color:var(--text);
+    font-family:'JetBrains Mono';font-weight:700;font-size:1rem;
+    padding:14px 6px;border-radius:8px;cursor:pointer;transition:transform .12s, border-color .12s;
+  }
+  .run-btn:active{transform:scale(0.94);}
+  .run-btn.four{border-color:var(--gold);color:var(--gold);}
+  .run-btn.six{background:var(--green-bright);color:#06170e;border-color:var(--green-bright);}
+  .run-btn.wide{font-size:0.7rem;color:var(--muted);}
+  .run-btn.out{background:#3a1010;border-color:#ff5d5d;color:#ff8080;}
+  .run-btn.undo{font-size:0.75rem;color:var(--gold);}
+  @media(max-width:480px){.run-btns{grid-template-columns:repeat(4,1fr);}}
+
+  .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+  .squad-admin-thumb{
+    background:var(--bg-alt);border:1px solid var(--line);border-radius:8px;
+    padding:8px 10px;display:flex;align-items:center;gap:8px;font-size:0.78rem;
+  }
+  .squad-admin-thumb .x{color:#ff5d5d;cursor:pointer;font-weight:700;margin-left:4px;}
+
   /* ===== SQUAD ===== */
   .squad-grid{
     display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px;
@@ -363,20 +384,33 @@
     </div>
 
     <div id="formView" style="display:none;">
-      <h4>Update Live Match</h4>
-      <div class="form-grid">
+      <h4>Match Control — <span id="battingTeamLabel">Team 1</span> batting</h4>
+
+      <div class="form-grid" style="margin-bottom:16px;">
         <div class="field"><label>Team 1 Name</label><input id="t1name" placeholder="SUPER FRIENDS"></div>
         <div class="field"><label>Team 2 Name</label><input id="t2name" placeholder="ROYAL KINGS"></div>
-        <div class="field"><label>Team 1 Score</label><input id="t1score" placeholder="124/3"></div>
-        <div class="field"><label>Team 2 Score</label><input id="t2score" placeholder="— or 118/6"></div>
-        <div class="field"><label>Team 1 Overs</label><input id="t1overs" placeholder="15.2 OV"></div>
-        <div class="field"><label>Team 2 Overs</label><input id="t2overs" placeholder="Yet to bat"></div>
-        <div class="field full"><label>Match Status Line</label><input id="statusline" placeholder="SUPER FRIENDS need 40 runs off 28 balls"></div>
+        <div class="field full"><label>Match Status Line (optional)</label><input id="statusline" placeholder="SUPER FRIENDS need 40 runs off 28 balls"></div>
+      </div>
+      <div class="admin-actions" style="margin-bottom:18px;">
+        <button class="btn small ghost" onclick="saveNamesStatus()">💾 Save Names / Status</button>
+        <button class="btn small ghost" onclick="swapBatting()">🔄 Switch Batting Team</button>
+      </div>
+
+      <label style="margin-bottom:8px;">Score a ball</label>
+      <div class="run-btns">
+        <button class="run-btn" onclick="addRuns(0)">0</button>
+        <button class="run-btn" onclick="addRuns(1)">1</button>
+        <button class="run-btn" onclick="addRuns(2)">2</button>
+        <button class="run-btn" onclick="addRuns(3)">3</button>
+        <button class="run-btn four" onclick="addRuns(4)">4</button>
+        <button class="run-btn six" onclick="addRuns(6)">6</button>
+        <button class="run-btn wide" onclick="addExtra(1)">Wide</button>
+        <button class="run-btn wide" onclick="addExtra(1)">No Ball</button>
+        <button class="run-btn out" onclick="addWicket()">Wicket</button>
+        <button class="run-btn undo" onclick="undoLast()">Undo</button>
       </div>
       <div class="admin-actions">
-        <button class="btn small" onclick="saveScore('add')">➕ Add New</button>
-        <button class="btn small ghost" onclick="saveScore('update')">💾 Save / Update</button>
-        <button class="btn small ghost" onclick="loadCurrent()">↻ Load Current</button>
+        <button class="btn small ghost" onclick="resetMatch()">⟲ Reset Match</button>
       </div>
       <div class="admin-status" id="saveStatus"></div>
     </div>
@@ -389,13 +423,48 @@
     <div class="eyebrow">The Squad</div>
     <h2>Playing XI</h2>
   </div>
-  <div class="squad-grid">
-    <div class="player-card"><div class="avatar">RK</div><h4>Rahul Kumar</h4><p>Captain</p></div>
-    <div class="player-card"><div class="avatar">AS</div><h4>Arun S.</h4><p>Batsman</p></div>
-    <div class="player-card"><div class="avatar">VP</div><h4>Vijay P.</h4><p>Bowler</p></div>
-    <div class="player-card"><div class="avatar">MK</div><h4>Manoj K.</h4><p>All Rounder</p></div>
-    <div class="player-card"><div class="avatar">SD</div><h4>Suresh D.</h4><p>Wicket Keeper</p></div>
-    <div class="player-card"><div class="avatar">TN</div><h4>Tamil N.</h4><p>Batsman</p></div>
+  <div class="squad-grid" id="squadGrid">
+    <!-- player cards render here from Firebase, with static fallback via JS -->
+  </div>
+
+  <div class="admin-toggle">
+    <span class="admin-link" onclick="toggleSquadAdmin()">⚙ Admin — add / edit players</span>
+  </div>
+
+  <div class="admin-panel" id="squadAdminPanel">
+    <div id="squadLockView">
+      <h4>Enter admin passcode</h4>
+      <div class="lock-row">
+        <input type="password" id="squadPassInput" placeholder="Passcode">
+        <button class="btn small" onclick="checkSquadPass()">Unlock</button>
+      </div>
+      <div class="admin-status" id="squadLockStatus"></div>
+    </div>
+
+    <div id="squadFormView" style="display:none;">
+      <h4>Add Player</h4>
+      <div class="form-grid">
+        <div class="field"><label>Name</label><input id="playerName" placeholder="Arun S."></div>
+        <div class="field">
+          <label>Role</label>
+          <select id="playerRole">
+            <option>Captain</option>
+            <option>Batsman</option>
+            <option>Bowler</option>
+            <option>All Rounder</option>
+            <option>Wicket Keeper</option>
+          </select>
+        </div>
+        <div class="field full"><label>Photo (optional)</label><input type="file" id="playerPhoto" accept="image/*"></div>
+      </div>
+      <div class="admin-actions">
+        <button class="btn small" onclick="addPlayer()">➕ Add Player</button>
+      </div>
+      <div class="admin-status" id="squadSaveStatus"></div>
+
+      <h4 style="margin-top:26px;">Current Players — tap × to remove</h4>
+      <div id="squadAdminList" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
+    </div>
   </div>
 </section>
 
@@ -519,97 +588,222 @@ try {
 }
 
 const liveRef = () => db.ref("liveMatch");
+const playersRef = () => db.ref("players");
 
-/* ---- Render live score card from data object ---- */
-function renderLive(data) {
-  if (!data) return;
-  document.getElementById("team1Name").textContent = data.t1name || "SUPER FRIENDS";
-  document.getElementById("team2Name").textContent = data.t2name || "OPPONENT";
-  document.getElementById("team1Score").textContent = data.t1score || "0/0";
-  document.getElementById("team2Score").textContent = data.t2score || "—";
-  document.getElementById("team1Overs").textContent = data.t1overs || "";
-  document.getElementById("team2Overs").textContent = data.t2overs || "";
-  document.getElementById("matchStatus").textContent = data.statusline || "";
+function defaultMatchState() {
+  return {
+    t1name:"SUPER FRIENDS", t2name:"OPPONENT",
+    t1runs:0, t1wkts:0, t1overs:0, t1balls:0,
+    t2runs:0, t2wkts:0, t2overs:0, t2balls:0,
+    battingTeam:1, statusline:"", updatedAt: Date.now()
+  };
 }
 
-/* ---- Listen for live changes (updates in real time for every visitor) ---- */
+/* ---- Turn raw ball-by-ball state into what the scoreboard shows ---- */
+function renderLive(d) {
+  if (!d) return;
+  document.getElementById("team1Name").textContent = d.t1name || "SUPER FRIENDS";
+  document.getElementById("team2Name").textContent = d.t2name || "OPPONENT";
+  document.getElementById("team1Score").textContent = `${d.t1runs||0}/${d.t1wkts||0}`;
+  document.getElementById("team2Score").textContent = `${d.t2runs||0}/${d.t2wkts||0}`;
+
+  const t1Faced = (d.t1runs||0)+(d.t1wkts||0)+(d.t1overs||0)+(d.t1balls||0) > 0;
+  const t2Faced = (d.t2runs||0)+(d.t2wkts||0)+(d.t2overs||0)+(d.t2balls||0) > 0;
+  document.getElementById("team1Overs").textContent = t1Faced ? `${d.t1overs||0}.${d.t1balls||0} OV` : "Yet to bat";
+  document.getElementById("team2Overs").textContent = t2Faced ? `${d.t2overs||0}.${d.t2balls||0} OV` : "Yet to bat";
+
+  document.getElementById("matchStatus").textContent = d.statusline || "";
+  document.querySelectorAll(".team-block").forEach((el,i)=>el.classList.toggle("batting", (i+1)===d.battingTeam));
+
+  // keep admin fields in sync if panel is open
+  if (document.getElementById("t1name")) t1name.value = d.t1name || "";
+  if (document.getElementById("t2name")) t2name.value = d.t2name || "";
+  if (document.getElementById("statusline")) statusline.value = d.statusline || "";
+  const lbl = document.getElementById("battingTeamLabel");
+  if (lbl) lbl.textContent = d.battingTeam===1 ? (d.t1name||"Team 1") : (d.t2name||"Team 2");
+}
+
+let currentState = defaultMatchState();
 if (firebaseReady) {
   liveRef().on("value", (snap) => {
-    if (snap.exists()) renderLive(snap.val());
+    currentState = snap.exists() ? snap.val() : defaultMatchState();
+    renderLive(currentState);
   });
 }
 
-/* ---- Admin unlock ---- */
-function toggleAdmin() {
-  document.getElementById("adminPanel").classList.toggle("open");
-}
+/* ---- Admin unlock (live score) ---- */
+function toggleAdmin() { document.getElementById("adminPanel").classList.toggle("open"); }
 function checkPass() {
   const val = document.getElementById("passInput").value;
   const status = document.getElementById("lockStatus");
   if (val === ADMIN_PASS) {
     document.getElementById("lockView").style.display = "none";
     document.getElementById("formView").style.display = "block";
-    loadCurrent();
+  } else {
+    status.style.color = "#ff5d5d";
+    status.textContent = "Wrong passcode";
+  }
+}
+const t1name=document.getElementById("t1name"), t2name=document.getElementById("t2name"),
+      statusline=document.getElementById("statusline");
+
+function saveNamesStatus() {
+  const statusEl = document.getElementById("saveStatus");
+  if (!firebaseReady) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Firebase config missing."; return; }
+  liveRef().update({ t1name:t1name.value, t2name:t2name.value, statusline:statusline.value, updatedAt:Date.now() })
+    .then(()=>{ statusEl.style.color="#2be878"; statusEl.textContent="✔ Saved."; });
+}
+
+/* ---- Ball-by-ball scoring engine ---- */
+let lastState = null;
+
+function applyChange(mutator) {
+  if (!firebaseReady) {
+    document.getElementById("saveStatus").style.color = "#ff5d5d";
+    document.getElementById("saveStatus").textContent = "Firebase config missing — paste it in the script first.";
+    return;
+  }
+  liveRef().once("value").then((snap) => {
+    const d = snap.exists() ? snap.val() : defaultMatchState();
+    lastState = JSON.parse(JSON.stringify(d));
+    mutator(d);
+    d.updatedAt = Date.now();
+    liveRef().set(d);
+  });
+}
+function incBall(d, t) {
+  d["t"+t+"balls"] += 1;
+  if (d["t"+t+"balls"] >= 6) { d["t"+t+"overs"] += 1; d["t"+t+"balls"] = 0; }
+}
+function addRuns(n) {
+  applyChange((d) => { const t=d.battingTeam; d["t"+t+"runs"] += n; incBall(d,t); });
+}
+function addExtra(n) {
+  applyChange((d) => { const t=d.battingTeam; d["t"+t+"runs"] += n; }); // extras: no ball consumed
+}
+function addWicket() {
+  applyChange((d) => { const t=d.battingTeam; d["t"+t+"wkts"] = Math.min(10, d["t"+t+"wkts"]+1); incBall(d,t); });
+}
+function swapBatting() {
+  applyChange((d) => { d.battingTeam = d.battingTeam===1 ? 2 : 1; });
+}
+function undoLast() {
+  const statusEl = document.getElementById("saveStatus");
+  if (!lastState) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Nothing to undo."; return; }
+  liveRef().set(lastState).then(()=>{ statusEl.style.color="#2be878"; statusEl.textContent="✔ Undone."; lastState=null; });
+}
+function resetMatch() {
+  if (!confirm("Reset the whole match to 0?")) return;
+  liveRef().set(defaultMatchState());
+}
+
+/* ---- Squad: default players (used only if Firebase has none yet) ---- */
+const defaultPlayers = [
+  {name:"Rahul Kumar", role:"Captain", photo:""},
+  {name:"Arun S.", role:"Batsman", photo:""},
+  {name:"Vijay P.", role:"Bowler", photo:""},
+  {name:"Manoj K.", role:"All Rounder", photo:""},
+  {name:"Suresh D.", role:"Wicket Keeper", photo:""},
+  {name:"Tamil N.", role:"Batsman", photo:""}
+];
+function initials(name) {
+  return (name||"?").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+}
+function renderSquad(players) {
+  const grid = document.getElementById("squadGrid");
+  grid.innerHTML = "";
+  players.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "player-card";
+    card.innerHTML = `
+      <div class="avatar">${p.photo ? `<img src="${p.photo}" alt="">` : initials(p.name)}</div>
+      <h4>${p.name}</h4><p>${p.role}</p>`;
+    grid.appendChild(card);
+  });
+}
+function renderSquadAdminList(entries) {
+  const list = document.getElementById("squadAdminList");
+  if (!list) return;
+  list.innerHTML = "";
+  entries.forEach(([id,p]) => {
+    const chip = document.createElement("div");
+    chip.className = "squad-admin-thumb";
+    chip.innerHTML = `${p.name} · ${p.role} <span class="x" onclick="deletePlayer('${id}')">×</span>`;
+    list.appendChild(chip);
+  });
+}
+if (firebaseReady) {
+  playersRef().on("value", (snap) => {
+    if (snap.exists()) {
+      const val = snap.val();
+      const entries = Object.entries(val);
+      renderSquad(entries.map(([,p]) => p));
+      renderSquadAdminList(entries);
+    } else {
+      renderSquad(defaultPlayers);
+      renderSquadAdminList([]);
+    }
+  });
+} else {
+  renderSquad(defaultPlayers);
+}
+
+/* ---- Squad admin unlock ---- */
+function toggleSquadAdmin() { document.getElementById("squadAdminPanel").classList.toggle("open"); }
+function checkSquadPass() {
+  const val = document.getElementById("squadPassInput").value;
+  const status = document.getElementById("squadLockStatus");
+  if (val === ADMIN_PASS) {
+    document.getElementById("squadLockView").style.display = "none";
+    document.getElementById("squadFormView").style.display = "block";
   } else {
     status.style.color = "#ff5d5d";
     status.textContent = "Wrong passcode";
   }
 }
 
-/* ---- Load current DB values into the form ---- */
-function loadCurrent() {
-  if (!firebaseReady) return;
-  liveRef().once("value", (snap) => {
-    const d = snap.val() || {};
-    t1name.value = d.t1name || "";
-    t2name.value = d.t2name || "";
-    t1score.value = d.t1score || "";
-    t2score.value = d.t2score || "";
-    t1overs.value = d.t1overs || "";
-    t2overs.value = d.t2overs || "";
-    statusline.value = d.statusline || "";
-  });
-}
+/* ---- Compress + convert photo to base64, then push new player ---- */
+function addPlayer() {
+  const statusEl = document.getElementById("squadSaveStatus");
+  const name = document.getElementById("playerName").value.trim();
+  const role = document.getElementById("playerRole").value;
+  const file = document.getElementById("playerPhoto").files[0];
+  if (!name) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Name podunga."; return; }
+  if (!firebaseReady) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Firebase config missing."; return; }
 
-/* ---- Add (push new) or Save/Update (overwrite same node) ---- */
-function saveScore(mode) {
-  const statusEl = document.getElementById("saveStatus");
-  if (!firebaseReady) {
-    statusEl.style.color = "#ff5d5d";
-    statusEl.textContent = "Firebase config missing — paste it in the script first.";
-    return;
+  function save(photoData) {
+    playersRef().push({ name, role, photo: photoData || "" }).then(() => {
+      statusEl.style.color = "#2be878";
+      statusEl.textContent = "✔ Player added.";
+      document.getElementById("playerName").value = "";
+      document.getElementById("playerPhoto").value = "";
+    });
   }
-  const payload = {
-    t1name: t1name.value,
-    t2name: t2name.value,
-    t1score: t1score.value,
-    t2score: t2score.value,
-    t1overs: t1overs.value,
-    t2overs: t2overs.value,
-    statusline: statusline.value,
-    updatedAt: Date.now()
+
+  if (!file) { save(""); return; }
+
+  // Resize to max 200x200 before saving, so the database stays small
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 200;
+      const canvas = document.createElement("canvas");
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      const scale = Math.max(size/img.width, size/img.height);
+      const w = img.width*scale, h = img.height*scale;
+      ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+      save(canvas.toDataURL("image/jpeg", 0.8));
+    };
+    img.src = e.target.result;
   };
-
-  if (mode === "add") {
-    // Puthu match record set pannuthu (existing data mudhaliya overwrite)
-    liveRef().set(payload).then(() => {
-      statusEl.style.color = "#2be878";
-      statusEl.textContent = "✔ New live match added.";
-    });
-  } else {
-    // Update — existing fields mattum change pannuthu
-    liveRef().update(payload).then(() => {
-      statusEl.style.color = "#2be878";
-      statusEl.textContent = "✔ Live score saved / updated.";
-    });
-  }
+  reader.readAsDataURL(file);
 }
-
-/* fields shorthand */
-const t1name=document.getElementById("t1name"), t2name=document.getElementById("t2name"),
-      t1score=document.getElementById("t1score"), t2score=document.getElementById("t2score"),
-      t1overs=document.getElementById("t1overs"), t2overs=document.getElementById("t2overs"),
-      statusline=document.getElementById("statusline");
+function deletePlayer(id) {
+  if (!confirm("Remove this player?")) return;
+  playersRef().child(id).remove();
+}
 
 /* ---- Stats tabs ---- */
 function showStats(which) {
