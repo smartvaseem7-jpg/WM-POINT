@@ -13,8 +13,8 @@
     --bg-alt:#0d1c13;
     --card:#102418;
     --line:#1c3524;
-    --blue:#1565d8;
-    --blue-bright:#4da3ff;
+    --green:#1565d8;
+    --green-bright:#4da3ff;
     --gold:#c9a24b;
     --text:#eaf2ec;
     --muted:#8fa79a;
@@ -62,10 +62,10 @@
   .logo{display:flex;align-items:center;gap:10px;font-family:'Oswald';font-weight:700;font-size:1.05rem;letter-spacing:0.03em;}
   .logo-mark{
     width:36px;height:36px;border-radius:8px;
-    background:linear-gradient(145deg,var(--blue),#0a4025);
+    background:linear-gradient(145deg,var(--green),#0a4025);
     display:flex;align-items:center;justify-content:center;
     font-size:0.75rem;font-weight:700;color:var(--green-bright);
-    border:1px solid var(--blue);
+    border:1px solid var(--green);
   }
   .logo span{color:var(--muted);font-size:0.65rem;display:block;font-family:'Inter';font-weight:400;letter-spacing:0.05em;text-transform:none;}
   nav{display:flex;gap:26px;font-size:0.85rem;letter-spacing:0.04em;text-transform:uppercase;font-weight:500;}
@@ -85,10 +85,28 @@
   }
 
   /* ===== HERO ===== */
+  /* ===== LIVE TICKER ===== */
+  .ticker-wrap{
+    position:fixed;top:66px;left:0;right:0;z-index:999;
+    height:34px;overflow:hidden;
+    background:linear-gradient(90deg,#0a1710,var(--bg-alt),#0a1710);
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;
+  }
+  .ticker-track{
+    display:flex;gap:48px;white-space:nowrap;
+    padding-left:24px;
+    animation:ticker-scroll 22s linear infinite;
+    font-family:'JetBrains Mono';font-size:0.72rem;letter-spacing:0.06em;
+    color:var(--green-bright);
+  }
+  .ticker-track span{flex-shrink:0;}
+  @keyframes ticker-scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
   .hero{
     min-height:100vh;
     display:flex;flex-direction:column;justify-content:center;
-    padding:120px 24px 60px;
+    padding:156px 24px 60px;
     position:relative;
     background:
       radial-gradient(circle at 80% 20%, rgba(21,101,216,0.18), transparent 55%),
@@ -100,13 +118,13 @@
     background:repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 90px);
     pointer-events:none;
   }
-  .hero-tag{font-family:'JetBrains Mono';color:var(--blue-bright);font-size:0.78rem;letter-spacing:0.2em;margin-bottom:18px;}
+  .hero-tag{font-family:'JetBrains Mono';color:var(--green-bright);font-size:0.78rem;letter-spacing:0.2em;margin-bottom:18px;}
   .hero h1{
     font-size:clamp(3rem,13vw,6.2rem);
     line-height:0.95;font-weight:700;
     color:var(--text);
   }
-  .hero h1 span{color:transparent;-webkit-text-stroke:1.5px var(--blue-bright);}
+  .hero h1 span{color:transparent;-webkit-text-stroke:1.5px var(--green-bright);}
   .hero-sub{
     margin-top:18px;max-width:480px;color:var(--muted);
     font-size:1rem;line-height:1.6;
@@ -119,7 +137,7 @@
   .btn{
     display:inline-flex;align-items:center;gap:10px;
     margin-top:38px;padding:15px 30px;
-    background:var(--blue-bright);color:#06170e;
+    background:var(--green-bright);color:#06170e;
     font-family:'Oswald';font-weight:600;letter-spacing:0.05em;text-transform:uppercase;
     font-size:0.85rem;border-radius:4px;border:none;cursor:pointer;
     transition:transform .2s, box-shadow .2s;
@@ -129,16 +147,20 @@
   .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);}
   .btn.small{padding:10px 18px;font-size:0.75rem;margin-top:0;}
 
+  /* ===== SCROLL REVEAL ===== */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in-view{opacity:1;transform:translateY(0);}
+
   /* ===== VIEW SWITCHING (Home / Daily Match / Tournament / Gallery / Contact) ===== */
   .view{display:none;}
   .view.active{display:block;}
-  .back-row{max-width:1180px;margin:100px auto 0;padding:0 24px;}
+  .back-row{max-width:1180px;margin:136px auto 0;padding:0 24px;}
   .back-link{
     display:inline-flex;align-items:center;gap:6px;
     font-family:'JetBrains Mono';font-size:0.78rem;color:var(--gold);
     letter-spacing:0.06em;cursor:pointer;
   }
-  .back-link:hover{color:var(--blue-bright);}
+  .back-link:hover{color:var(--green-bright);}
 
   .home-choice{
     display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px;max-width:640px;
@@ -157,7 +179,17 @@
   .hero-logo{
     width:150px;height:150px;object-fit:contain;
     margin-bottom:22px;filter:drop-shadow(0 10px 30px rgba(77,163,255,0.25));
+    position:relative;animation:logo-float 5s ease-in-out infinite;
   }
+  @keyframes logo-float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  .hero{position:relative;}
+  .hero::before{
+    content:"";position:absolute;top:10%;left:50%;
+    width:340px;height:340px;transform:translateX(-50%);
+    background:radial-gradient(circle, rgba(77,163,255,0.16), transparent 70%);
+    animation:glow-pulse 4s ease-in-out infinite;pointer-events:none;
+  }
+  @keyframes glow-pulse{0%,100%{opacity:0.6;transform:translateX(-50%) scale(1);}50%{opacity:1;transform:translateX(-50%) scale(1.15);}}
 
   /* ===== CAPTAIN SPOTLIGHT ===== */
   .captain-spot{
@@ -165,7 +197,7 @@
     display:flex;align-items:center;gap:40px;flex-wrap:wrap;
   }
   .captain-photo-wrap{
-    flex:0 0 150px;height:200px;border-radius:16px;overflow:hidden;
+    flex:0 0 240px;height:320px;border-radius:16px;overflow:hidden;
     background:linear-gradient(160deg,var(--card),#0a1710);
     border:1px solid var(--gold);
     display:flex;align-items:flex-end;justify-content:center;
@@ -193,11 +225,16 @@
   #live{background:var(--bg-alt);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
   .scoreboard{
     background:linear-gradient(180deg,#0a1710,#050c07);
-    border:1px solid var(--line);
+    border:1px solid var(--green-bright);
     border-radius:14px;
     padding:30px;
     position:relative;
     box-shadow:inset 0 0 60px rgba(77,163,255,0.05), 0 20px 50px rgba(0,0,0,0.4);
+    animation:board-glow 3s ease-in-out infinite;
+  }
+  @keyframes board-glow{
+    0%,100%{box-shadow:inset 0 0 60px rgba(77,163,255,0.05), 0 20px 50px rgba(0,0,0,0.4), 0 0 0px rgba(77,163,255,0);}
+    50%{box-shadow:inset 0 0 60px rgba(77,163,255,0.08), 0 20px 50px rgba(0,0,0,0.4), 0 0 26px rgba(77,163,255,0.35);}
   }
   .live-badge{
     display:inline-flex;align-items:center;gap:8px;
@@ -455,11 +492,23 @@
   <a href="javascript:void(0)" onclick="showView('contact')">Contact</a>
 </div>
 
+<!-- LIVE TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="tickerTrack">
+    <span>🔴 LIVE — SUPER FRIENDS CRICKET CLUB</span>
+    <span id="tickerStatus">Welcome to WM Point</span>
+    <span>🏏 Daily Match · 🏆 Tournament · Follow every run, every wicket</span>
+    <span>🔴 LIVE — SUPER FRIENDS CRICKET CLUB</span>
+    <span id="tickerStatus2">Welcome to WM Point</span>
+    <span>🏏 Daily Match · 🏆 Tournament · Follow every run, every wicket</span>
+  </div>
+</div>
+
 <!-- ========== HOME VIEW ========== -->
 <div class="view active" id="view-home">
 
 <!-- HERO -->
-<section class="hero" style="padding-top:120px;">
+<section class="hero" style="padding-top:156px;">
   <img src="IMG-20260723-WA0047.jpg" alt="Super Friends Logo" class="hero-logo">
   <div class="hero-tag">SUPER FRIENDS CRICKET CLUB — EST. WM POINT</div>
   <h1>WM<br><span>POINT</span></h1>
@@ -484,7 +533,6 @@
   <div class="captain-photo-wrap">
     <img src="captain-solo.jpg" alt="Team Captain">
     <div class="captain-vignette"></div>
-  </div>
   </div>
   <div class="captain-info">
     <div class="eyebrow">Leadership</div>
@@ -813,11 +861,25 @@ try {
   console.warn("Firebase not connected yet — paste your config above.", e);
 }
 
+/* ---- Scroll-reveal: fade+rise cards/sections into view ---- */
+const revealTargets = document.querySelectorAll(
+  '.player-card, .fixture-card, .knockout-card, .champion-card, .home-card, .scoreboard, .captain-spot, table'
+);
+revealTargets.forEach(el => el.classList.add('reveal'));
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+}, { threshold: 0.15 });
+revealTargets.forEach(el => revealObserver.observe(el));
+document.querySelectorAll('.view.active .reveal').forEach(el => el.classList.add('in-view'));
+
 /* ---- View switching: Home / Daily Match / Tournament / Gallery / Contact ---- */
 function showView(name) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   const target = document.getElementById("view-" + name);
-  if (target) target.classList.add("active");
+  if (target) {
+    target.classList.add("active");
+    target.querySelectorAll(".reveal").forEach(el => el.classList.add("in-view"));
+  }
   window.scrollTo(0, 0);
   document.getElementById("mnav").classList.remove("open");
 }
@@ -849,6 +911,11 @@ function renderLive(d) {
 
   document.getElementById("matchStatus").textContent = d.statusline || "";
   document.querySelectorAll(".team-block").forEach((el,i)=>el.classList.toggle("batting", (i+1)===d.battingTeam));
+
+  const tickerText = `${d.t1name||"SUPER FRIENDS"} ${d.t1runs||0}/${d.t1wkts||0} vs ${d.t2name||"OPPONENT"} ${d.t2runs||0}/${d.t2wkts||0}${d.statusline ? " — " + d.statusline : ""}`;
+  const ts1 = document.getElementById("tickerStatus"), ts2 = document.getElementById("tickerStatus2");
+  if (ts1) ts1.textContent = tickerText;
+  if (ts2) ts2.textContent = tickerText;
 
   // keep admin fields in sync if panel is open
   if (document.getElementById("t1name")) t1name.value = d.t1name || "";
