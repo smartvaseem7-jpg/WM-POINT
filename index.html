@@ -266,6 +266,56 @@
     color:var(--muted);font-family:'JetBrains Mono';font-size:0.8rem;letter-spacing:0.05em;
   }
 
+  /* ===== MATCH DETAIL: current batsmen / bowler ===== */
+  .match-detail-row{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;
+  }
+  .detail-box{
+    background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:10px;padding:14px;
+  }
+  .detail-label{font-family:'JetBrains Mono';font-size:0.65rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+  .detail-line{font-family:'JetBrains Mono';font-size:0.82rem;color:var(--text);padding:3px 0;}
+  @media(max-width:520px){.match-detail-row{grid-template-columns:1fr;}}
+
+  .over-label{
+    font-family:'JetBrains Mono';font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;
+    text-transform:uppercase;margin-top:20px;margin-bottom:10px;
+  }
+  .over-balls{display:flex;gap:8px;flex-wrap:wrap;}
+  .over-ball{
+    width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono';font-weight:700;font-size:0.78rem;
+    background:var(--bg-alt);border:1px solid var(--line);color:var(--text);
+  }
+  .over-ball.four{border-color:var(--gold);color:var(--gold);}
+  .over-ball.six{background:var(--green-bright);color:#06170e;border-color:var(--green-bright);}
+  .over-ball.wicket{background:#3a1010;border-color:#ff5d5d;color:#ff8080;}
+  .over-ball.extra{color:var(--muted);font-size:0.62rem;}
+
+  /* ===== BATTING CARD (full innings list) ===== */
+  .batting-card-list{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+  .bc-row{
+    display:flex;align-items:center;gap:14px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;
+  }
+  .bc-photo{
+    width:42px;height:42px;border-radius:50%;flex-shrink:0;overflow:hidden;
+    background:linear-gradient(145deg,var(--green),#0a2c1a);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Oswald';font-weight:700;color:var(--green-bright);font-size:0.85rem;
+    border:1px solid var(--green);
+  }
+  .bc-photo img{width:100%;height:100%;object-fit:cover;}
+  .bc-name{flex:1;font-size:0.9rem;}
+  .bc-stat{font-family:'JetBrains Mono';font-size:0.82rem;color:var(--muted);}
+  .bc-badge{
+    font-family:'JetBrains Mono';font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;
+    padding:3px 9px;border-radius:20px;
+  }
+  .bc-badge.batting{background:rgba(77,163,255,0.12);color:var(--green-bright);border:1px solid var(--green-bright);}
+  .bc-badge.out{background:rgba(220,50,50,0.12);color:#ff8080;border:1px solid #ff5d5d;}
+
   /* Admin */
   .admin-toggle{
     margin-top:28px;display:flex;justify-content:center;
@@ -558,21 +608,42 @@
   <div class="scoreboard">
     <div class="live-badge"><span class="dot"></span> LIVE</div>
     <div class="teams-row">
-      <div class="team-block batting">
-        <img class="team-logo" id="team1Logo" src="images/team1.png" alt="" onerror="this.style.display='none'">
-        <h3 id="team1Name">SUPER FRIENDS</h3>
-        <div class="score-digits" id="team1Score">124/3</div>
-        <div class="score-sub" id="team1Overs">15.2 OV</div>
-      </div>
-      <div class="vs-mark">VS</div>
-      <div class="team-block">
+      <div class="team-block" id="teamBlockOpp">
         <img class="team-logo" id="team2Logo" src="images/team2.png" alt="" onerror="this.style.display='none'">
         <h3 id="team2Name">ROYAL KINGS</h3>
         <div class="score-digits" id="team2Score">—</div>
         <div class="score-sub" id="team2Overs">Yet to bat</div>
       </div>
+      <div class="vs-mark">VS</div>
+      <div class="team-block" id="teamBlockUs">
+        <img class="team-logo" id="team1Logo" src="images/team1.png" alt="" onerror="this.style.display='none'">
+        <h3 id="team1Name">SUPER FRIENDS</h3>
+        <div class="score-digits" id="team1Score">124/3</div>
+        <div class="score-sub" id="team1Overs">15.2 OV</div>
+      </div>
     </div>
     <div class="status-line" id="matchStatus">SUPER FRIENDS need 40 runs off 28 balls</div>
+
+    <div class="match-detail-row">
+      <div class="detail-box">
+        <div class="detail-label">🏏 Batting</div>
+        <div class="detail-line" id="bat1Line">—</div>
+        <div class="detail-line" id="bat2Line">—</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-label">🎯 Bowling</div>
+        <div class="detail-line" id="bowlLine">—</div>
+      </div>
+    </div>
+
+    <div class="over-label">This Over</div>
+    <div class="over-balls" id="overBallsRow"></div>
+  </div>
+
+  <!-- FULL BATTING CARD -->
+  <div class="batting-card">
+    <div class="eyebrow" style="margin-top:34px;">Innings — Batting Card</div>
+    <div id="battingCardList" class="batting-card-list"></div>
   </div>
 
   <div class="admin-toggle">
@@ -593,8 +664,8 @@
       <h4>Match Control — <span id="battingTeamLabel">Team 1</span> batting</h4>
 
       <div class="form-grid" style="margin-bottom:16px;">
-        <div class="field"><label>Team 1 Name</label><input id="t1name" placeholder="SUPER FRIENDS"></div>
-        <div class="field"><label>Team 2 Name</label><input id="t2name" placeholder="ROYAL KINGS"></div>
+        <div class="field"><label>Opponent Team Name</label><input id="t2name" placeholder="ROYAL KINGS"></div>
+        <div class="field"><label>Our Team Name</label><input id="t1name" placeholder="SUPER FRIENDS"></div>
         <div class="field full"><label>Match Status Line (optional)</label><input id="statusline" placeholder="SUPER FRIENDS need 40 runs off 28 balls"></div>
       </div>
       <div class="admin-actions" style="margin-bottom:18px;">
@@ -615,10 +686,42 @@
         <button class="run-btn out" onclick="addWicket()">Wicket</button>
         <button class="run-btn undo" onclick="undoLast()">Undo</button>
       </div>
-      <div class="admin-actions">
+      <div class="admin-actions" style="margin-bottom:22px;">
         <button class="btn small ghost" onclick="resetMatch()">⟲ Reset Match</button>
       </div>
+
+      <h4>Current Batsmen & Bowler</h4>
+      <div class="form-grid">
+        <div class="field"><label>Batsman 1 — Name</label><input id="bat1name" placeholder="Arun S."></div>
+        <div class="field"><label>Runs (Balls)</label><input id="bat1stat" placeholder="45 (32)"></div>
+        <div class="field"><label>Batsman 2 — Name</label><input id="bat2name" placeholder="Tamil N."></div>
+        <div class="field"><label>Runs (Balls)</label><input id="bat2stat" placeholder="18 (14)"></div>
+        <div class="field"><label>Bowler — Name</label><input id="bowlname" placeholder="Vijay P."></div>
+        <div class="field"><label>Figures (O-R-W)</label><input id="bowlstat" placeholder="3-22-1"></div>
+      </div>
+      <div class="admin-actions">
+        <button class="btn small ghost" onclick="saveBatBowl()">💾 Save Batsmen / Bowler</button>
+      </div>
       <div class="admin-status" id="saveStatus"></div>
+
+      <h4 style="margin-top:28px;">Batting Card — add player</h4>
+      <div class="form-grid">
+        <div class="field full">
+          <label>Player</label>
+          <select id="bcPlayerSelect"><option value="">— select from squad —</option></select>
+        </div>
+        <div class="field"><label>Runs</label><input id="bcRuns" type="number" placeholder="45"></div>
+        <div class="field"><label>Balls</label><input id="bcBalls" type="number" placeholder="32"></div>
+        <div class="field full">
+          <label>Status</label>
+          <select id="bcStatus"><option value="batting">Batting</option><option value="out">Out</option></select>
+        </div>
+      </div>
+      <div class="admin-actions">
+        <button class="btn small" onclick="addBattingCard()">➕ Add / Update in Batting Card</button>
+      </div>
+      <div class="admin-status" id="bcStatusMsg"></div>
+      <div id="bcAdminList" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;"></div>
     </div>
   </div>
 </section>
@@ -890,9 +993,12 @@ const playersRef = () => db.ref("players");
 function defaultMatchState() {
   return {
     t1name:"SUPER FRIENDS", t2name:"OPPONENT",
-    t1runs:0, t1wkts:0, t1overs:0, t1balls:0,
-    t2runs:0, t2wkts:0, t2overs:0, t2balls:0,
-    battingTeam:1, statusline:"", updatedAt: Date.now()
+    t1runs:0, t1wkts:0, t1overs:0, t1balls:0, t1overballs:[],
+    t2runs:0, t2wkts:0, t2overs:0, t2balls:0, t2overballs:[],
+    battingTeam:1, statusline:"",
+    bat1name:"", bat1stat:"", bat2name:"", bat2stat:"",
+    bowlname:"", bowlstat:"",
+    updatedAt: Date.now()
   };
 }
 
@@ -911,6 +1017,31 @@ function renderLive(d) {
 
   document.getElementById("matchStatus").textContent = d.statusline || "";
   document.querySelectorAll(".team-block").forEach((el,i)=>el.classList.toggle("batting", (i+1)===d.battingTeam));
+
+  document.getElementById("bat1Line").textContent = d.bat1name ? `${d.bat1name} — ${d.bat1stat||""}` : "—";
+  document.getElementById("bat2Line").textContent = d.bat2name ? `${d.bat2name} — ${d.bat2stat||""}` : "—";
+  document.getElementById("bowlLine").textContent = d.bowlname ? `${d.bowlname} — ${d.bowlstat||""}` : "—";
+
+  const overBalls = (d.battingTeam===1 ? d.t1overballs : d.t2overballs) || [];
+  const rowEl = document.getElementById("overBallsRow");
+  rowEl.innerHTML = "";
+  overBalls.forEach(b => {
+    const el = document.createElement("div");
+    let cls = "over-ball";
+    if (b==="4") cls += " four";
+    else if (b==="6") cls += " six";
+    else if (b==="W") cls += " wicket";
+    else if (b==="wd" || b==="nb") cls += " extra";
+    el.className = cls;
+    el.textContent = b;
+    rowEl.appendChild(el);
+  });
+
+  if (document.getElementById("bat1name") && !document.activeElement.matches("#bat1name,#bat1stat,#bat2name,#bat2stat,#bowlname,#bowlstat")) {
+    bat1name.value = d.bat1name||""; bat1stat.value = d.bat1stat||"";
+    bat2name.value = d.bat2name||""; bat2stat.value = d.bat2stat||"";
+    bowlname.value = d.bowlname||""; bowlstat.value = d.bowlstat||"";
+  }
 
   const tickerText = `${d.t1name||"SUPER FRIENDS"} ${d.t1runs||0}/${d.t1wkts||0} vs ${d.t2name||"OPPONENT"} ${d.t2runs||0}/${d.t2wkts||0}${d.statusline ? " — " + d.statusline : ""}`;
   const ts1 = document.getElementById("tickerStatus"), ts2 = document.getElementById("tickerStatus2");
@@ -973,22 +1104,42 @@ function applyChange(mutator) {
     liveRef().set(d);
   });
 }
-function incBall(d, t) {
+function incBall(d, t, label) {
+  const key = "t"+t+"overballs";
+  if (!d[key]) d[key] = [];
+  d[key].push(label);
   d["t"+t+"balls"] += 1;
-  if (d["t"+t+"balls"] >= 6) { d["t"+t+"overs"] += 1; d["t"+t+"balls"] = 0; }
+  if (d["t"+t+"balls"] >= 6) { d["t"+t+"overs"] += 1; d["t"+t+"balls"] = 0; d[key] = []; }
 }
 function addRuns(n) {
-  applyChange((d) => { const t=d.battingTeam; d["t"+t+"runs"] += n; incBall(d,t); });
+  applyChange((d) => { const t=d.battingTeam; d["t"+t+"runs"] += n; incBall(d,t,String(n)); });
 }
 function addExtra(n) {
-  applyChange((d) => { const t=d.battingTeam; d["t"+t+"runs"] += n; }); // extras: no ball consumed
+  applyChange((d) => {
+    const t=d.battingTeam; d["t"+t+"runs"] += n;
+    const key="t"+t+"overballs"; if (!d[key]) d[key]=[];
+    d[key].push("wd");
+  }); // extras: no legal ball consumed, still shown in the over
 }
 function addWicket() {
-  applyChange((d) => { const t=d.battingTeam; d["t"+t+"wkts"] = Math.min(10, d["t"+t+"wkts"]+1); incBall(d,t); });
+  applyChange((d) => { const t=d.battingTeam; d["t"+t+"wkts"] = Math.min(10, d["t"+t+"wkts"]+1); incBall(d,t,"W"); });
 }
 function swapBatting() {
   applyChange((d) => { d.battingTeam = d.battingTeam===1 ? 2 : 1; });
 }
+function saveBatBowl() {
+  const statusEl = document.getElementById("saveStatus");
+  if (!firebaseReady) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Firebase config missing."; return; }
+  liveRef().update({
+    bat1name: bat1name.value, bat1stat: bat1stat.value,
+    bat2name: bat2name.value, bat2stat: bat2stat.value,
+    bowlname: bowlname.value, bowlstat: bowlstat.value,
+    updatedAt: Date.now()
+  }).then(()=>{ statusEl.style.color="#4da3ff"; statusEl.textContent="✔ Saved."; });
+}
+const bat1name=document.getElementById("bat1name"), bat1stat=document.getElementById("bat1stat"),
+      bat2name=document.getElementById("bat2name"), bat2stat=document.getElementById("bat2stat"),
+      bowlname=document.getElementById("bowlname"), bowlstat=document.getElementById("bowlstat");
 function undoLast() {
   const statusEl = document.getElementById("saveStatus");
   if (!lastState) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Nothing to undo."; return; }
@@ -1034,6 +1185,13 @@ function renderSquadAdminList(entries) {
     list.appendChild(chip);
   });
 }
+let squadPlayersCache = [];
+function fillBattingCardDropdown() {
+  const sel = document.getElementById("bcPlayerSelect");
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— select from squad —</option>' +
+    squadPlayersCache.map(([id,p]) => `<option value="${id}">${p.name}</option>`).join("");
+}
 if (firebaseReady) {
   playersRef().on("value", (snap) => {
     if (snap.exists()) {
@@ -1041,10 +1199,13 @@ if (firebaseReady) {
       const entries = Object.entries(val);
       renderSquad(entries.map(([,p]) => p));
       renderSquadAdminList(entries);
+      squadPlayersCache = entries;
     } else {
       renderSquad(defaultPlayers);
       renderSquadAdminList([]);
+      squadPlayersCache = [];
     }
+    fillBattingCardDropdown();
   });
 } else {
   renderSquad(defaultPlayers);
@@ -1105,6 +1266,58 @@ function addPlayer() {
 function deletePlayer(id) {
   if (!confirm("Remove this player?")) return;
   playersRef().child(id).remove();
+}
+
+/* ---- Batting Card: full innings list with photo + runs/balls + out/batting ---- */
+const battingCardRef = () => db.ref("battingCard");
+
+function renderBattingCard(entries) {
+  const wrap = document.getElementById("battingCardList");
+  if (!wrap) return;
+  if (entries.length === 0) { wrap.innerHTML = ""; return; }
+  wrap.innerHTML = entries.map(([id, b]) => `
+    <div class="bc-row">
+      <div class="bc-photo">${b.photo ? `<img src="${b.photo}" alt="">` : initials(b.name)}</div>
+      <div class="bc-name">${b.name}</div>
+      <div class="bc-stat">${b.runs||0} (${b.balls||0})</div>
+      <div class="bc-badge ${b.status==='out' ? 'out' : 'batting'}">${b.status==='out' ? 'Out' : 'Batting'}</div>
+    </div>
+  `).join("");
+}
+function renderBcAdminList(entries) {
+  const list = document.getElementById("bcAdminList");
+  if (!list) return;
+  list.innerHTML = "";
+  entries.forEach(([id,b]) => {
+    const chip = document.createElement("div");
+    chip.className = "squad-admin-thumb";
+    chip.innerHTML = `${b.name} · ${b.runs||0}(${b.balls||0}) · ${b.status} <span class="x" onclick="deleteBattingCard('${id}')">×</span>`;
+    list.appendChild(chip);
+  });
+}
+if (firebaseReady) {
+  battingCardRef().on("value", (snap) => {
+    const entries = snap.exists() ? Object.entries(snap.val()) : [];
+    renderBattingCard(entries);
+    renderBcAdminList(entries);
+  });
+}
+function addBattingCard() {
+  const statusEl = document.getElementById("bcStatusMsg");
+  const playerId = document.getElementById("bcPlayerSelect").value;
+  const runs = document.getElementById("bcRuns").value || 0;
+  const balls = document.getElementById("bcBalls").value || 0;
+  const status = document.getElementById("bcStatus").value;
+  if (!playerId) { statusEl.style.color="#ff5d5d"; statusEl.textContent="Player தேர்ந்துக்குங்க."; return; }
+  const player = squadPlayersCache.find(([id]) => id === playerId);
+  if (!player) return;
+  const [, p] = player;
+  battingCardRef().child(playerId).set({ name:p.name, photo:p.photo||"", runs:Number(runs), balls:Number(balls), status })
+    .then(() => { statusEl.style.color="#4da3ff"; statusEl.textContent="✔ Added/Updated."; });
+}
+function deleteBattingCard(id) {
+  if (!confirm("Remove from batting card?")) return;
+  battingCardRef().child(id).remove();
 }
 
 /* ---- Stats tabs ---- */
