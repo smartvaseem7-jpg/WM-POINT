@@ -773,10 +773,10 @@ document.getElementById('resetMatchBtn').addEventListener('click', async ()=>{
 loadData();
 
 // Auto-refresh every 5 seconds so other visitors see live updates without reloading the page.
-// Skipped while an admin modal is open, so it doesn't wipe out what's being typed.
+// Skipped entirely while this device is logged in as admin — otherwise a poll landing at the
+// same moment as a save could overwrite the change that was just made (e.g. a new match result).
 setInterval(()=>{
-  const anyModalOpen = document.querySelector('.modal-backdrop.show');
-  if(!anyModalOpen){ loadData(); }
+  if(!isAdmin){ loadData(); }
 }, 5000);
 </script>
 
