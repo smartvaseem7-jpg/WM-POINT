@@ -497,7 +497,14 @@ document.getElementById('liveSave').addEventListener('click', async ()=>{
 });
 
 loadData();
+
+// Auto-refresh every 5 seconds so other visitors see live updates without reloading the page.
+// Skipped while an admin modal is open, so it doesn't wipe out what's being typed.
+setInterval(()=>{
+  const anyModalOpen = document.querySelector('.modal-backdrop.show');
+  if(!anyModalOpen){ loadData(); }
+}, 5000);
 </script>
 
 </body>
-</html>
+                                                                                 </html>
