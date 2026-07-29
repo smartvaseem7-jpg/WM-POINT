@@ -33,6 +33,17 @@
   .admin-bar{background:var(--gold);color:var(--navy);text-align:center;font-size:0.82rem;font-weight:700;padding:8px;display:none;}
   .admin-bar.show{display:block;}
 
+  .page{display:none;}
+  .page.active{display:block;animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .back-btn{background:none;border:none;color:var(--ink-soft);font-weight:700;font-size:0.85rem;cursor:pointer;padding:0 0 18px;}
+  .back-btn:hover{color:var(--navy);}
+  .menu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .menu-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 18px;text-align:center;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
+  .menu-card:hover{transform:translateY(-4px);box-shadow:0 16px 30px -14px rgba(11,18,51,0.25);border-color:var(--gold);}
+  .menu-icon{font-size:2rem;margin-bottom:10px;}
+  .menu-title{font-family:'Anton',sans-serif;font-size:1rem;text-transform:uppercase;margin-bottom:4px;}
+  .menu-sub{font-size:0.78rem;color:var(--ink-soft);}
   .hero{max-width:1160px;margin:0 auto;padding:50px 24px 30px;display:grid;grid-template-columns:1.05fr 0.95fr;gap:48px;align-items:center;}
   .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--gold);padding:6px 14px;border-radius:100px;font-size:0.75rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:20px;}
   .hero h1{font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.02;margin-bottom:18px;text-transform:uppercase;}
@@ -123,6 +134,7 @@
   @media (max-width:900px){
     .hero{grid-template-columns:1fr;padding-top:28px;}
     nav ul li:not(.admin-li){display:none;}
+    .menu-grid{grid-template-columns:repeat(2,1fr);}
     .squad-grid{grid-template-columns:repeat(2,1fr);}
     .match-row{grid-template-columns:1fr auto 1fr;}
     .m-date,.m-venue{display:none;}
@@ -136,13 +148,14 @@
 
 <header>
   <div class="nav-inner">
-    <div class="logo"><span class="logo-mark"><img src="logo.jpg" alt="Super Friends Cricket Team logo"></span>SUPER FRIENDS</div>
+    <div class="logo" style="cursor:pointer;" onclick="showPage('home')"><span class="logo-mark"><img src="logo.jpg" alt="Super Friends Cricket Team logo"></span>SUPER FRIENDS</div>
     <nav>
       <ul>
-        <li><a href="#live">Live</a></li>
-        <li><a href="#history">Results</a></li>
-        <li><a href="#squad">Squad</a></li>
-        <li><a href="#matches">Fixtures</a></li>
+        <li><a href="#" onclick="showPage('home');return false;">Home</a></li>
+        <li><a href="#" onclick="showPage('live');return false;">Live</a></li>
+        <li><a href="#" onclick="showPage('history');return false;">Results</a></li>
+        <li><a href="#" onclick="showPage('squad');return false;">Squad</a></li>
+        <li><a href="#" onclick="showPage('matches');return false;">Fixtures</a></li>
         <li class="admin-li"><button class="admin-btn" id="adminToggle">Admin login</button></li>
       </ul>
     </nav>
@@ -150,50 +163,86 @@
 </header>
 
 <main>
-  <div class="hero">
-    <div>
-      <div class="eyebrow">Super Friends Cricket Team</div>
-      <h1>United we<br><span>win</span>.</h1>
-      <p>The home ground for Super Friends CC — live scores, our squad, and every upcoming match.</p>
-      <div class="hero-actions">
-        <button class="btn-primary" onclick="document.getElementById('live').scrollIntoView({behavior:'smooth'})">Live score</button>
-        <button class="btn-ghost" onclick="document.getElementById('matches').scrollIntoView({behavior:'smooth'})">See fixtures</button>
+  <!-- HOME -->
+  <div class="page active" id="home">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Super Friends Cricket Team</div>
+        <h1>United we<br><span>win</span>.</h1>
+        <p>The home ground for Super Friends CC — live scores, our squad, and every upcoming match.</p>
       </div>
+      <div class="hero-photo"><img src="logo.jpg" alt="Super Friends Cricket Team"></div>
     </div>
-    <div class="hero-photo"><img src="logo.jpg" alt="Super Friends Cricket Team"></div>
+
+    <section style="padding-top:10px;">
+      <div class="menu-grid">
+        <div class="menu-card" onclick="showPage('live')">
+          <div class="menu-icon">🏏</div>
+          <div class="menu-title">Live Match</div>
+          <div class="menu-sub">Ball by ball score</div>
+        </div>
+        <div class="menu-card" onclick="showPage('history')">
+          <div class="menu-icon">🏆</div>
+          <div class="menu-title">Match History</div>
+          <div class="menu-sub">Results we've played</div>
+        </div>
+        <div class="menu-card" onclick="showPage('squad')">
+          <div class="menu-icon">👥</div>
+          <div class="menu-title">The Squad</div>
+          <div class="menu-sub">Meet the players</div>
+        </div>
+        <div class="menu-card" onclick="showPage('matches')">
+          <div class="menu-icon">📅</div>
+          <div class="menu-title">Upcoming Fixtures</div>
+          <div class="menu-sub">What's next</div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- LIVE MATCH -->
-  <section id="live">
-    <div class="section-head">
-      <div><h2>Live match</h2><div class="sub" id="liveSub">Current score, ball by ball.</div></div>
-      <button class="add-btn admin-only" id="editLiveBtn" style="display:none;">Edit live score</button>
-    </div>
-    <div id="liveContainer"></div>
-  </section>
+  <div class="page" id="live">
+    <section>
+      <button class="back-btn" onclick="showPage('home')">← Home</button>
+      <div class="section-head">
+        <div><h2>Live match</h2><div class="sub" id="liveSub">Current score, ball by ball.</div></div>
+        <button class="add-btn admin-only" id="editLiveBtn" style="display:none;">Edit live score</button>
+      </div>
+      <div id="liveContainer"></div>
+    </section>
+  </div>
 
-  <section id="history">
-    <div class="section-head">
-      <div><h2>Match history</h2><div class="sub">Results from matches we've finished.</div></div>
-    </div>
-    <div id="historyList" style="display:flex;flex-direction:column;gap:10px;"></div>
-  </section>
+  <div class="page" id="history">
+    <section>
+      <button class="back-btn" onclick="showPage('home')">← Home</button>
+      <div class="section-head">
+        <div><h2>Match history</h2><div class="sub">Results from matches we've finished.</div></div>
+      </div>
+      <div id="historyList" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </section>
+  </div>
 
-  <section id="squad">
-    <div class="section-head">
-      <div><h2>The squad</h2><div class="sub">Players in Super Friends CC.</div></div>
-      <button class="add-btn admin-only" id="addPlayerBtn" style="display:none;">+ Add player</button>
-    </div>
-    <div class="squad-grid" id="squadGrid"></div>
-  </section>
+  <div class="page" id="squad">
+    <section>
+      <button class="back-btn" onclick="showPage('home')">← Home</button>
+      <div class="section-head">
+        <div><h2>The squad</h2><div class="sub">Players in Super Friends CC.</div></div>
+        <button class="add-btn admin-only" id="addPlayerBtn" style="display:none;">+ Add player</button>
+      </div>
+      <div class="squad-grid" id="squadGrid"></div>
+    </section>
+  </div>
 
-  <section id="matches">
-    <div class="section-head">
-      <div><h2>Upcoming fixtures</h2><div class="sub">Matches on the calendar.</div></div>
-      <button class="add-btn admin-only" id="addMatchBtn" style="display:none;">+ Add fixture</button>
-    </div>
-    <div class="match-list" id="matchList"></div>
-  </section>
+  <div class="page" id="matches">
+    <section>
+      <button class="back-btn" onclick="showPage('home')">← Home</button>
+      <div class="section-head">
+        <div><h2>Upcoming fixtures</h2><div class="sub">Matches on the calendar.</div></div>
+        <button class="add-btn admin-only" id="addMatchBtn" style="display:none;">+ Add fixture</button>
+      </div>
+      <div class="match-list" id="matchList"></div>
+    </section>
+  </div>
 </main>
 
 <footer>
@@ -223,7 +272,13 @@
     <h3 id="playerModalTitle">Add player</h3>
     <label>Name</label><input id="pName" placeholder="Player name">
     <label>Role</label><input id="pRole" placeholder="Batter / Bowler / All-rounder / Captain">
-    <label>Photo URL (optional)</label><input id="pPhoto" placeholder="https://...">
+    <label>Photo</label>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div id="pPhotoPreview" style="width:40px;height:40px;border-radius:8px;background:var(--card);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--ink-soft);">?</div>
+      <label for="pPhotoFile" style="margin:0;flex:1;text-align:center;background:var(--card);border:1px dashed var(--gold);color:var(--navy);padding:9px;border-radius:9px;font-weight:700;font-size:0.78rem;cursor:pointer;text-transform:none;">📷 Upload from phone</label>
+      <input type="file" accept="image/*" id="pPhotoFile" style="display:none;">
+    </div>
+    <input id="pPhoto" placeholder="or paste an image link" style="margin-top:8px;">
     <div class="modal-actions">
       <button class="cancel" id="playerCancel">Cancel</button>
       <button class="save" id="playerSave">Save</button>
@@ -254,8 +309,14 @@
       <label style="margin:0;">Show live match on site</label>
     </div>
     <label>Opponent team</label><input id="lOpponent" placeholder="Opponent name">
-    <label>Opponent logo URL (optional)</label><input id="lOpponentLogo" placeholder="https://...">
-    <div class="hint">Don't have a link yet? Upload the logo to imgur.com, then paste its image link here.</div>
+    <label>Opponent logo</label>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div id="lOpponentLogoPreview" style="width:40px;height:40px;border-radius:8px;background:var(--card);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--ink-soft);"></div>
+      <label for="lOpponentLogoFile" style="margin:0;flex:1;text-align:center;background:var(--card);border:1px dashed var(--gold);color:var(--navy);padding:9px;border-radius:9px;font-weight:700;font-size:0.78rem;cursor:pointer;text-transform:none;">📷 Upload from phone</label>
+      <input type="file" accept="image/*" id="lOpponentLogoFile" style="display:none;">
+    </div>
+    <input id="lOpponentLogo" placeholder="or paste an image link" style="margin-top:8px;">
+    <div class="hint">Upload a photo from your phone, or paste a link (e.g. from imgur.com).</div>
     <label>Status line (optional, e.g. need 34 off 8)</label><input id="lNote" placeholder="need 34 off 8">
     <div class="modal-actions" style="margin-top:14px;">
       <button class="cancel" id="liveDetailsCancel">Close</button>
@@ -512,6 +573,20 @@ document.getElementById('loginSubmit').addEventListener('click', ()=>{
 // PLAYER MODAL
 document.getElementById('addPlayerBtn').addEventListener('click', ()=> openPlayerModal(null));
 document.getElementById('playerCancel').addEventListener('click', ()=> document.getElementById('playerModal').classList.remove('show'));
+function updatePlayerPhotoPreview(){
+  const val = document.getElementById('pPhoto').value.trim();
+  const preview = document.getElementById('pPhotoPreview');
+  preview.innerHTML = val ? `<img src="${val}" style="width:100%;height:100%;object-fit:cover;">` : '?';
+}
+document.getElementById('pPhotoFile').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const dataUrl = await resizeImageFile(file, 400, 0.82);
+  document.getElementById('pPhoto').value = dataUrl;
+  updatePlayerPhotoPreview();
+});
+document.getElementById('pPhoto').addEventListener('input', updatePlayerPhotoPreview);
+
 function openPlayerModal(id){
   editingPlayerId = id;
   const modal = document.getElementById('playerModal');
@@ -527,6 +602,7 @@ function openPlayerModal(id){
     document.getElementById('pRole').value = '';
     document.getElementById('pPhoto').value = '';
   }
+  updatePlayerPhotoPreview();
   modal.classList.add('show');
 }
 document.getElementById('playerSave').addEventListener('click', async ()=>{
@@ -680,11 +756,48 @@ document.getElementById('undoBallBtn').addEventListener('click', async ()=>{
   renderScoringPad(); render();
 });
 
+function resizeImageFile(file, maxDim, quality){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w > h){ if(w > maxDim){ h = Math.round(h*maxDim/w); w = maxDim; } }
+        else { if(h > maxDim){ w = Math.round(w*maxDim/h); h = maxDim; } }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function updateLogoPreview(){
+  const val = document.getElementById('lOpponentLogo').value.trim();
+  const preview = document.getElementById('lOpponentLogoPreview');
+  preview.innerHTML = val ? `<img src="${val}" style="width:100%;height:100%;object-fit:cover;">` : '?';
+}
+document.getElementById('lOpponentLogoFile').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const dataUrl = await resizeImageFile(file, 400, 0.82);
+  document.getElementById('lOpponentLogo').value = dataUrl;
+  updateLogoPreview();
+});
+document.getElementById('lOpponentLogo').addEventListener('input', updateLogoPreview);
+
 document.getElementById('editLiveBtn').addEventListener('click', ()=>{
   const l = data.live;
   document.getElementById('lActive').checked = !!l.active;
   document.getElementById('lOpponent').value = l.opponent || '';
   document.getElementById('lOpponentLogo').value = l.opponentLogo || '';
+  updateLogoPreview();
   document.getElementById('lNote').value = l.note || '';
   document.getElementById('lResult').value = l.result || '';
   renderScoringPad();
@@ -769,6 +882,14 @@ document.getElementById('resetMatchBtn').addEventListener('click', async ()=>{
   renderScoringPad(); render();
 });
 
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if(target) target.classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+window.showPage = showPage;
 
 loadData();
 
