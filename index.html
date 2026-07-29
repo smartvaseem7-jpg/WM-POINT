@@ -64,7 +64,7 @@
   .crest img{width:100%;height:100%;object-fit:cover;}
   .team-name{font-size:0.8rem;font-weight:600;text-align:center;}
   .score-mid{display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .score-num{font-family:'Anton',sans-serif;font-size:2.1rem;}
+  .score-num{font-family:'Anton',sans-serif;font-size:3.2rem;line-height:1;}
   .score-sub{font-size:0.7rem;color:var(--gold);font-weight:600;letter-spacing:0.03em;}
   .clock{font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.7);margin-top:3px;}
   .events-strip{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;}
@@ -140,6 +140,7 @@
     <nav>
       <ul>
         <li><a href="#live">Live</a></li>
+        <li><a href="#history">Results</a></li>
         <li><a href="#squad">Squad</a></li>
         <li><a href="#matches">Fixtures</a></li>
         <li class="admin-li"><button class="admin-btn" id="adminToggle">Admin login</button></li>
@@ -169,6 +170,13 @@
       <button class="add-btn admin-only" id="editLiveBtn" style="display:none;">Edit live score</button>
     </div>
     <div id="liveContainer"></div>
+  </section>
+
+  <section id="history">
+    <div class="section-head">
+      <div><h2>Match history</h2><div class="sub">Results from matches we've finished.</div></div>
+    </div>
+    <div id="historyList" style="display:flex;flex-direction:column;gap:10px;"></div>
   </section>
 
   <section id="squad">
@@ -246,6 +254,8 @@
       <label style="margin:0;">Show live match on site</label>
     </div>
     <label>Opponent team</label><input id="lOpponent" placeholder="Opponent name">
+    <label>Opponent logo URL (optional)</label><input id="lOpponentLogo" placeholder="https://...">
+    <div class="hint">Don't have a link yet? Upload the logo to imgur.com, then paste its image link here.</div>
     <label>Status line (optional, e.g. need 34 off 8)</label><input id="lNote" placeholder="need 34 off 8">
     <div class="modal-actions" style="margin-top:14px;">
       <button class="cancel" id="liveDetailsCancel">Close</button>
@@ -254,7 +264,7 @@
 
     <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:16px;">
       <div style="text-align:center;font-size:0.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;margin-bottom:6px;" id="battingLabel">Now batting: Super Friends</div>
-      <div style="text-align:center;font-family:'Anton',sans-serif;font-size:1.8rem;" id="scorePreview">0/0</div>
+      <div style="text-align:center;font-family:'Anton',sans-serif;font-size:2.6rem;" id="scorePreview">0/0</div>
       <div style="text-align:center;font-size:0.78rem;color:var(--ink-soft);margin-bottom:10px;" id="oversPreview">0.0 overs</div>
       <div id="firstInningsNote" style="text-align:center;font-size:0.78rem;color:var(--ink-soft);margin-bottom:12px;"></div>
 
@@ -289,8 +299,8 @@ const ADMIN_PASSWORD = "SuperFriends@2026"; // change this to your own password
 const FIREBASE_URL = "https://wm-point-e9196-default-rtdb.firebaseio.com"; // your Firebase Realtime Database
 const STORAGE_PATH = "site-content"; // data lives at FIREBASE_URL/site-content.json
 let isAdmin = false;
-const DEFAULT_LIVE = { active:false, opponent:'', note:'', battingTeam:'us', runs:0, wickets:0, balls:0, history:[], firstInnings:null, result:'' };
-let data = { players: [], fixtures: [], live: Object.assign({}, DEFAULT_LIVE) };
+const DEFAULT_LIVE = { active:false, opponent:'', opponentLogo:'', note:'', battingTeam:'us', runs:0, wickets:0, balls:0, history:[], firstInnings:null, result:'', matchId:null };
+let data = { players: [], fixtures: [], matchHistory: [], live: Object.assign({}, DEFAULT_LIVE) };
 let editingPlayerId = null;
 let editingMatchId = null;
 
@@ -299,10 +309,11 @@ async function loadData(){
     const res = await fetch(`${FIREBASE_URL}/${STORAGE_PATH}.json`);
     const loaded = await res.json();
     if(loaded){
-      data = Object.assign({ players: [], fixtures: [], live: Object.assign({}, DEFAULT_LIVE) }, loaded);
+      data = Object.assign({ players: [], fixtures: [], matchHistory: [], live: Object.assign({}, DEFAULT_LIVE) }, loaded);
       data.live = Object.assign({}, DEFAULT_LIVE, data.live || {});
       if(!Array.isArray(data.players)) data.players = data.players ? Object.values(data.players) : [];
       if(!Array.isArray(data.fixtures)) data.fixtures = data.fixtures ? Object.values(data.fixtures) : [];
+      if(!Array.isArray(data.matchHistory)) data.matchHistory = data.matchHistory ? Object.values(data.matchHistory) : [];
       if(!Array.isArray(data.live.history)) data.live.history = data.live.history ? Object.values(data.live.history) : [];
     }
   }catch(e){ console.error("load failed", e); }
@@ -401,7 +412,7 @@ function render(){
             <div class="clock">${escapeHtml(l.note || '')}</div>`}
           </div>
           <div class="team-block">
-            <div class="crest">${escapeHtml((l.opponent||'??').slice(0,2).toUpperCase())}</div>
+            <div class="crest">${l.opponentLogo ? `<img src="${escapeHtml(l.opponentLogo)}" alt="${escapeHtml(l.opponent)}">` : escapeHtml((l.opponent||'??').slice(0,2).toUpperCase())}</div>
             <div class="team-name">${escapeHtml(l.opponent || 'Opponent')}</div>
             ${themLine ? `<div class="mono" style="font-size:0.7rem;color:${l.battingTeam==='them' && !l.result ? 'var(--gold)':'rgba(255,255,255,0.75)'};">${themLine}</div>` : ''}
           </div>
@@ -412,6 +423,30 @@ function render(){
     liveContainer.innerHTML = `<div class="live-empty">No live match right now — check back on match day.</div>`;
   }
 
+  // MATCH HISTORY
+  const histList = document.getElementById('historyList');
+  histList.innerHTML = '';
+  if(!data.matchHistory || data.matchHistory.length === 0){
+    histList.innerHTML = '<div class="empty-note">No completed matches yet.</div>';
+  } else {
+    data.matchHistory.forEach(m=>{
+      const row = document.createElement('div');
+      row.style.cssText = 'background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap;';
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="m-crest">${m.opponentLogo ? `<img src="${escapeHtml(m.opponentLogo)}" alt="">` : escapeHtml((m.opponent||'??').slice(0,2).toUpperCase())}</div>
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">Super Friends vs ${escapeHtml(m.opponent||'Opponent')}</div>
+            <div style="font-size:0.78rem;color:var(--ink-soft);" class="mono">${escapeHtml(m.usLine||'—')} · ${escapeHtml(m.themLine||'—')}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-weight:700;font-size:0.85rem;color:var(--navy);">${escapeHtml(m.result)}</div>
+          ${isAdmin ? `<button class="mini-btn del" onclick="deleteHistory('${m.id}')">Delete</button>` : ''}
+        </div>`;
+      histList.appendChild(row);
+    });
+  }
 
   // SQUAD
   const grid = document.getElementById('squadGrid');
@@ -548,6 +583,7 @@ document.getElementById('matchSave').addEventListener('click', async ()=>{
 });
 window.openMatchModal = openMatchModal;
 window.deleteMatch = async (id)=>{ if(!confirm('Delete this fixture?')) return; data.fixtures = data.fixtures.filter(m=>m.id!==id); await saveData(); render(); };
+window.deleteHistory = async (id)=>{ if(!confirm('Delete this match result?')) return; data.matchHistory = data.matchHistory.filter(m=>m.id!==id); await saveData(); render(); };
 
 // LIVE MODAL — tap-based scoring pad
 const RUN_BUTTONS = [
@@ -647,6 +683,7 @@ document.getElementById('editLiveBtn').addEventListener('click', ()=>{
   const l = data.live;
   document.getElementById('lActive').checked = !!l.active;
   document.getElementById('lOpponent').value = l.opponent || '';
+  document.getElementById('lOpponentLogo').value = l.opponentLogo || '';
   document.getElementById('lNote').value = l.note || '';
   document.getElementById('lResult').value = l.result || '';
   renderScoringPad();
@@ -656,6 +693,7 @@ document.getElementById('liveDetailsCancel').addEventListener('click', ()=> docu
 document.getElementById('liveDetailsSave').addEventListener('click', async ()=>{
   data.live.active = document.getElementById('lActive').checked;
   data.live.opponent = document.getElementById('lOpponent').value.trim();
+  data.live.opponentLogo = document.getElementById('lOpponentLogo').value.trim();
   data.live.note = document.getElementById('lNote').value.trim();
   await saveData();
   render();
@@ -675,6 +713,21 @@ document.getElementById('switchInningsBtn').addEventListener('click', async ()=>
 
 document.getElementById('resultSave').addEventListener('click', async ()=>{
   data.live.result = document.getElementById('lResult').value.trim();
+  if(data.live.result){
+    if(!data.live.matchId) data.live.matchId = uid();
+    const l = data.live;
+    const snapshot = {
+      id: l.matchId,
+      opponent: l.opponent,
+      opponentLogo: l.opponentLogo,
+      result: l.result,
+      usLine: scoreLineFor(l, 'us'),
+      themLine: scoreLineFor(l, 'them'),
+      savedAt: new Date().toISOString()
+    };
+    const idx = data.matchHistory.findIndex(m=>m.id === l.matchId);
+    if(idx >= 0) data.matchHistory[idx] = snapshot; else data.matchHistory.unshift(snapshot);
+  }
   await saveData();
   render();
 });
@@ -684,6 +737,7 @@ document.getElementById('resetMatchBtn').addEventListener('click', async ()=>{
   data.live = Object.assign({}, DEFAULT_LIVE);
   document.getElementById('lActive').checked = false;
   document.getElementById('lOpponent').value = '';
+  document.getElementById('lOpponentLogo').value = '';
   document.getElementById('lNote').value = '';
   document.getElementById('lResult').value = '';
   await saveData();
