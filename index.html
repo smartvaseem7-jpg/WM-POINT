@@ -67,7 +67,7 @@
   .score-num{font-family:'Anton',sans-serif;font-size:2.1rem;}
   .score-sub{font-size:0.7rem;color:var(--gold);font-weight:600;letter-spacing:0.03em;}
   .clock{font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.7);margin-top:3px;}
-  .events-strip{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;max-height:220px;overflow-y:auto;}
+  .events-strip{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;}
   .event-row{display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;}
   .event-name{font-weight:500;opacity:0.95;}
   .live-empty{background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:30px;text-align:center;color:var(--ink-soft);font-size:0.9rem;}
@@ -253,8 +253,12 @@
     </div>
 
     <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:16px;">
+      <div style="text-align:center;font-size:0.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;margin-bottom:6px;" id="battingLabel">Now batting: Super Friends</div>
       <div style="text-align:center;font-family:'Anton',sans-serif;font-size:1.8rem;" id="scorePreview">0/0</div>
-      <div style="text-align:center;font-size:0.78rem;color:var(--ink-soft);margin-bottom:14px;" id="oversPreview">0.0 overs</div>
+      <div style="text-align:center;font-size:0.78rem;color:var(--ink-soft);margin-bottom:10px;" id="oversPreview">0.0 overs</div>
+      <div id="firstInningsNote" style="text-align:center;font-size:0.78rem;color:var(--ink-soft);margin-bottom:12px;"></div>
+
+      <button id="switchInningsBtn" style="width:100%;background:var(--navy);color:var(--gold);padding:10px;border:none;border-radius:9px;font-weight:700;font-size:0.82rem;cursor:pointer;margin-bottom:14px;">⇄ End innings — switch batting side</button>
 
       <div class="hint" style="margin-bottom:6px;">Tap what happened on each ball</div>
       <div id="runButtons" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;"></div>
@@ -262,7 +266,19 @@
       <button id="undoBallBtn" style="width:100%;background:var(--card);border:1px dashed var(--line);color:var(--ink-soft);padding:9px;border-radius:9px;font-weight:700;font-size:0.82rem;cursor:pointer;">↺ Undo last ball</button>
 
       <div class="hint" style="margin:14px 0 6px;">Recent balls</div>
-      <div id="ballHistory" style="display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;"></div>
+      <div id="ballHistory" style="max-width:100%;"></div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px;">
+      <label style="margin-top:0;">Match result (fill in once the match ends)</label>
+      <input id="lResult" placeholder="e.g. Super Friends won by 32 runs">
+      <div class="modal-actions" style="margin-top:12px;">
+        <button class="save" id="resultSave" style="background:var(--navy);color:var(--gold);">Save result</button>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px;">
+      <button id="resetMatchBtn" style="width:100%;background:#FCEBEA;color:var(--red);border:1px dashed var(--red);padding:10px;border-radius:9px;font-weight:700;font-size:0.8rem;cursor:pointer;">Start a brand-new match (clears this scorecard)</button>
     </div>
   </div>
 </div>
@@ -273,7 +289,7 @@ const ADMIN_PASSWORD = "SuperFriends@2026"; // change this to your own password
 const FIREBASE_URL = "https://wm-point-e9196-default-rtdb.firebaseio.com"; // your Firebase Realtime Database
 const STORAGE_PATH = "site-content"; // data lives at FIREBASE_URL/site-content.json
 let isAdmin = false;
-const DEFAULT_LIVE = { active:false, opponent:'', note:'', runs:0, wickets:0, balls:0, history:[] };
+const DEFAULT_LIVE = { active:false, opponent:'', note:'', battingTeam:'us', runs:0, wickets:0, balls:0, history:[], firstInnings:null, result:'' };
 let data = { players: [], fixtures: [], live: Object.assign({}, DEFAULT_LIVE) };
 let editingPlayerId = null;
 let editingMatchId = null;
@@ -339,11 +355,21 @@ function ballChipHtml(b, dark){
 function oversFeedHtml(history, dark){
   const groups = groupByOvers(history);
   if(!groups.length) return '';
-  return groups.map(g=>`
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:${dark?'var(--gold)':'var(--ink-soft)'};min-width:34px;flex-shrink:0;">Ov ${g.over+1}</span>
-      <div style="display:flex;gap:6px;overflow-x:auto;">${g.balls.map(b=>ballChipHtml(b, dark)).join('')}</div>
-    </div>`).join('');
+  return `<div style="display:flex;flex-direction:row;gap:16px;overflow-x:auto;padding-bottom:4px;">
+    ${groups.map(g=>`
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;min-width:64px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:${dark?'var(--gold)':'var(--ink-soft)'};">Ov ${g.over+1}</span>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:130px;">${g.balls.map(b=>ballChipHtml(b, dark)).join('')}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function scoreLineFor(l, side){
+  // Returns a small "runs/wickets (overs)" line for a side if that side has a completed
+  // or in-progress score to show, else empty string.
+  if(l.battingTeam === side){ return `${l.runs}/${l.wickets} (${oversStr(l.balls)})`; }
+  if(l.firstInnings && l.firstInnings.team === side){ return `${l.firstInnings.runs}/${l.firstInnings.wickets} (${oversStr(l.firstInnings.balls)})`; }
+  return '';
 }
 
 function render(){
@@ -352,28 +378,40 @@ function render(){
   const liveSub = document.getElementById('liveSub');
   if(data.live && data.live.active){
     const l = data.live;
-    liveSub.textContent = l.note || 'Current score, ball by ball.';
+    liveSub.textContent = l.result || l.note || 'Current score, ball by ball.';
     const eventsHtml = oversFeedHtml(l.history, true);
+    const usLine = scoreLineFor(l, 'us');
+    const themLine = scoreLineFor(l, 'them');
     liveContainer.innerHTML = `
       <div class="live-card">
         <div class="live-card-top">
           <span>Super Friends Cricket Team</span>
-          <span class="live-pill"><span class="dot"></span> Live</span>
+          <span class="live-pill">${l.result ? 'Result' : `<span class="dot"></span> Live`}</span>
         </div>
         <div class="teams-row">
-          <div class="team-block"><div class="crest"><img src="logo.jpg" alt=""></div><div class="team-name">Super Friends</div></div>
+          <div class="team-block">
+            <div class="crest"><img src="logo.jpg" alt=""></div>
+            <div class="team-name">Super Friends</div>
+            ${usLine ? `<div class="mono" style="font-size:0.7rem;color:${l.battingTeam==='us' && !l.result ? 'var(--gold)':'rgba(255,255,255,0.75)'};">${usLine}</div>` : ''}
+          </div>
           <div class="score-mid">
+            ${l.result ? `<div style="font-family:'Anton',sans-serif;font-size:1rem;color:var(--gold);text-align:center;max-width:170px;">${escapeHtml(l.result)}</div>` : `
             <div class="score-num">${l.runs}/${l.wickets}</div>
             <div class="score-sub">${oversStr(l.balls)} OVERS</div>
-            <div class="clock">${escapeHtml(l.note || '')}</div>
+            <div class="clock">${escapeHtml(l.note || '')}</div>`}
           </div>
-          <div class="team-block"><div class="crest">${escapeHtml((l.opponent||'??').slice(0,2).toUpperCase())}</div><div class="team-name">${escapeHtml(l.opponent || 'Opponent')}</div></div>
+          <div class="team-block">
+            <div class="crest">${escapeHtml((l.opponent||'??').slice(0,2).toUpperCase())}</div>
+            <div class="team-name">${escapeHtml(l.opponent || 'Opponent')}</div>
+            ${themLine ? `<div class="mono" style="font-size:0.7rem;color:${l.battingTeam==='them' && !l.result ? 'var(--gold)':'rgba(255,255,255,0.75)'};">${themLine}</div>` : ''}
+          </div>
         </div>
         ${eventsHtml ? `<div class="events-strip">${eventsHtml}</div>` : ''}
       </div>`;
   } else {
     liveContainer.innerHTML = `<div class="live-empty">No live match right now — check back on match day.</div>`;
   }
+
 
   // SQUAD
   const grid = document.getElementById('squadGrid');
@@ -526,10 +564,25 @@ const EXTRA_BUTTONS = [
   {type:'wicket', label:'WICKET', display:'OUT'},
 ];
 
+function teamDisplayName(side){
+  return side === 'us' ? 'Super Friends' : (data.live.opponent || 'Opponent');
+}
+
 function renderScoringPad(){
   const l = data.live;
+  document.getElementById('battingLabel').textContent = `Now batting: ${teamDisplayName(l.battingTeam)}`;
   document.getElementById('scorePreview').textContent = `${l.runs}/${l.wickets}`;
   document.getElementById('oversPreview').textContent = oversStr(l.balls) + ' overs';
+
+  const fiNote = document.getElementById('firstInningsNote');
+  if(l.firstInnings){
+    fiNote.textContent = `${teamDisplayName(l.firstInnings.team)}: ${l.firstInnings.runs}/${l.firstInnings.wickets} (${oversStr(l.firstInnings.balls)} ov)`;
+  } else {
+    fiNote.textContent = '';
+  }
+
+  const switchBtn = document.getElementById('switchInningsBtn');
+  switchBtn.textContent = `⇄ End ${teamDisplayName(l.battingTeam)}'s innings — switch to ${teamDisplayName(l.battingTeam==='us'?'them':'us')}`;
 
   const runBox = document.getElementById('runButtons');
   runBox.innerHTML = RUN_BUTTONS.map((b,i)=>
@@ -595,6 +648,7 @@ document.getElementById('editLiveBtn').addEventListener('click', ()=>{
   document.getElementById('lActive').checked = !!l.active;
   document.getElementById('lOpponent').value = l.opponent || '';
   document.getElementById('lNote').value = l.note || '';
+  document.getElementById('lResult').value = l.result || '';
   renderScoringPad();
   document.getElementById('liveModal').classList.add('show');
 });
@@ -605,6 +659,35 @@ document.getElementById('liveDetailsSave').addEventListener('click', async ()=>{
   data.live.note = document.getElementById('lNote').value.trim();
   await saveData();
   render();
+});
+
+document.getElementById('switchInningsBtn').addEventListener('click', async ()=>{
+  const l = data.live;
+  const finishing = teamDisplayName(l.battingTeam);
+  const next = l.battingTeam === 'us' ? 'them' : 'us';
+  if(!confirm(`End ${finishing}'s innings at ${l.runs}/${l.wickets} (${oversStr(l.balls)} overs) and switch to ${teamDisplayName(next)}?`)) return;
+  l.firstInnings = { team: l.battingTeam, runs: l.runs, wickets: l.wickets, balls: l.balls };
+  l.battingTeam = next;
+  l.runs = 0; l.wickets = 0; l.balls = 0; l.history = [];
+  await saveData();
+  renderScoringPad(); render();
+});
+
+document.getElementById('resultSave').addEventListener('click', async ()=>{
+  data.live.result = document.getElementById('lResult').value.trim();
+  await saveData();
+  render();
+});
+
+document.getElementById('resetMatchBtn').addEventListener('click', async ()=>{
+  if(!confirm('This clears the entire scorecard (both innings, result, opponent) to start a fresh match. Continue?')) return;
+  data.live = Object.assign({}, DEFAULT_LIVE);
+  document.getElementById('lActive').checked = false;
+  document.getElementById('lOpponent').value = '';
+  document.getElementById('lNote').value = '';
+  document.getElementById('lResult').value = '';
+  await saveData();
+  renderScoringPad(); render();
 });
 
 
