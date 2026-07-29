@@ -282,6 +282,7 @@
     <div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px;">
       <label style="margin-top:0;">Match result (fill in once the match ends)</label>
       <input id="lResult" placeholder="e.g. Super Friends won by 32 runs">
+      <button id="autoCalcBtn" style="width:100%;margin-top:8px;background:var(--card);border:1px dashed var(--gold);color:var(--navy);padding:9px;border-radius:9px;font-weight:700;font-size:0.8rem;cursor:pointer;">⚡ Auto-calculate from scores</button>
       <div class="modal-actions" style="margin-top:12px;">
         <button class="save" id="resultSave" style="background:var(--navy);color:var(--gold);">Save result</button>
       </div>
@@ -709,6 +710,30 @@ document.getElementById('switchInningsBtn').addEventListener('click', async ()=>
   l.runs = 0; l.wickets = 0; l.balls = 0; l.history = [];
   await saveData();
   renderScoringPad(); render();
+});
+
+function calcResult(){
+  const l = data.live;
+  if(!l.firstInnings){ return null; }
+  const teamAName = teamDisplayName(l.firstInnings.team);
+  const teamARuns = l.firstInnings.runs;
+  const teamBName = teamDisplayName(l.battingTeam);
+  const teamBRuns = l.runs;
+  const teamBWickets = l.wickets;
+  if(teamBRuns > teamARuns){
+    const wicketsLeft = Math.max(10 - teamBWickets, 0);
+    return `${teamBName} won by ${wicketsLeft} wicket${wicketsLeft===1?'':'s'}`;
+  } else if(teamBRuns < teamARuns){
+    const margin = teamARuns - teamBRuns;
+    return `${teamAName} won by ${margin} run${margin===1?'':'s'}`;
+  } else {
+    return `Match tied`;
+  }
+}
+document.getElementById('autoCalcBtn').addEventListener('click', ()=>{
+  const result = calcResult();
+  if(!result){ alert("Both teams need to have batted first — switch innings once the first team is done."); return; }
+  document.getElementById('lResult').value = result;
 });
 
 document.getElementById('resultSave').addEventListener('click', async ()=>{
