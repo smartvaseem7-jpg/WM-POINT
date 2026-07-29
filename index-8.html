@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Friends Cricket Team — United We Win</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1233; --navy-deep:#060A1F; --gold:#F2B900;
+    --bg:#F7F5EF; --card:#EFEAD8; --ink:#0B1233; --ink-soft:#5B5E76;
+    --line:#E1DCC8; --red:#C81D25;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Anton',sans-serif;letter-spacing:0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(247,245,239,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  .nav-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;}
+  .logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.15rem;font-family:'Anton',sans-serif;}
+  .logo-mark{width:40px;height:40px;border-radius:10px;overflow:hidden;flex-shrink:0;border:2px solid var(--gold);}
+  .logo-mark img{width:100%;height:100%;object-fit:cover;}
+  nav ul{display:flex;gap:24px;list-style:none;align-items:center;}
+  nav a{font-size:0.9rem;font-weight:600;color:var(--ink-soft);}
+  nav a:hover{color:var(--navy);}
+  .admin-btn{background:var(--navy);color:var(--gold);padding:9px 18px;border-radius:100px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;}
+  .admin-btn.on{background:var(--red);color:#fff;}
+  .admin-bar{background:var(--gold);color:var(--navy);text-align:center;font-size:0.82rem;font-weight:700;padding:8px;display:none;}
+  .admin-bar.show{display:block;}
+
+  .hero{max-width:1160px;margin:0 auto;padding:50px 24px 30px;display:grid;grid-template-columns:1.05fr 0.95fr;gap:48px;align-items:center;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--gold);padding:6px 14px;border-radius:100px;font-size:0.75rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:20px;}
+  .hero h1{font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.02;margin-bottom:18px;text-transform:uppercase;}
+  .hero h1 span{color:var(--gold);-webkit-text-stroke:1px var(--navy);}
+  .hero p{font-size:1.02rem;color:var(--ink-soft);line-height:1.6;max-width:460px;margin-bottom:28px;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{background:var(--navy);color:var(--gold);padding:13px 26px;border-radius:100px;font-weight:700;font-size:0.88rem;border:none;cursor:pointer;text-transform:uppercase;box-shadow:0 10px 24px -8px rgba(11,18,51,0.5);}
+  .btn-ghost{background:transparent;border:1.5px solid var(--navy);color:var(--navy);padding:13px 24px;border-radius:100px;font-weight:700;font-size:0.88rem;cursor:pointer;text-transform:uppercase;}
+  .btn-ghost:hover{background:var(--navy);color:var(--gold);}
+  .hero-photo{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 60px -20px rgba(11,18,51,0.35);aspect-ratio:4/3;background:var(--navy);}
+  .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  section{max-width:1160px;margin:0 auto;padding:50px 24px;}
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+  .section-head h2{font-size:1.6rem;text-transform:uppercase;}
+  .section-head .sub{color:var(--ink-soft);font-size:0.88rem;}
+  .add-btn{background:var(--card);border:1.5px dashed var(--gold);color:var(--navy);font-weight:700;font-size:0.85rem;padding:9px 18px;border-radius:100px;cursor:pointer;}
+
+  /* LIVE SCORE CARD */
+  .live-card{background:linear-gradient(160deg,var(--navy) 0%, var(--navy-deep) 100%);border-radius:22px;color:#fff;padding:26px 24px 22px;position:relative;overflow:hidden;border:1px solid rgba(242,185,0,0.25);}
+  .live-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 0%, rgba(242,185,0,0.22), transparent 55%);}
+  .live-card-top{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:22px;position:relative;z-index:1;color:var(--gold);}
+  .live-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);padding:5px 12px;border-radius:100px;color:#fff;}
+  .live-pill .dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+  .teams-row{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;margin-bottom:20px;}
+  .team-block{display:flex;flex-direction:column;align-items:center;gap:10px;width:120px;}
+  .crest{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;border:1px solid rgba(242,185,0,0.4);overflow:hidden;color:var(--gold);}
+  .crest img{width:100%;height:100%;object-fit:cover;}
+  .team-name{font-size:0.8rem;font-weight:600;text-align:center;}
+  .score-mid{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .score-num{font-family:'Anton',sans-serif;font-size:2.1rem;}
+  .score-sub{font-size:0.7rem;color:var(--gold);font-weight:600;letter-spacing:0.03em;}
+  .clock{font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.7);margin-top:3px;}
+  .events-strip{display:flex;flex-direction:column;gap:9px;position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;}
+  .event-row{display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;}
+  .event-name{font-weight:500;opacity:0.95;}
+  .live-empty{background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:30px;text-align:center;color:var(--ink-soft);font-size:0.9rem;}
+  .live-edit-btn{margin-top:16px;}
+
+  .squad-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;}
+  .player-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center;position:relative;}
+  .player-photo{width:100%;aspect-ratio:1;border-radius:12px;margin-bottom:12px;background:var(--card);border:2px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink-soft);font-size:0.75rem;overflow:hidden;position:relative;}
+  .player-photo img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+  .player-photo .plus{font-size:1.6rem;color:var(--gold);font-family:'Anton',sans-serif;}
+  .player-name{font-weight:700;font-size:0.9rem;margin-bottom:2px;}
+  .player-role{font-size:0.75rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.03em;}
+  .card-actions{display:none;gap:8px;justify-content:center;margin-top:10px;}
+  .card-actions.show{display:flex;}
+  .mini-btn{font-size:0.72rem;font-weight:700;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;}
+  .mini-btn.edit{background:var(--card);color:var(--navy);}
+  .mini-btn.del{background:var(--red);color:#fff;}
+
+  .match-list{display:flex;flex-direction:column;gap:10px;}
+  .match-row{display:grid;grid-template-columns:1fr auto 1fr 130px 140px auto;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;gap:14px;}
+  .m-team{display:flex;align-items:center;gap:10px;font-size:0.9rem;font-weight:600;}
+  .m-team.right{justify-content:flex-end;text-align:right;flex-direction:row-reverse;}
+  .m-crest{width:28px;height:28px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;color:var(--navy);flex-shrink:0;overflow:hidden;}
+  .m-crest img{width:100%;height:100%;object-fit:cover;}
+  .m-vs{font-family:'Anton',sans-serif;font-size:0.8rem;color:var(--ink-soft);background:var(--card);padding:6px 12px;border-radius:9px;}
+  .m-date{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--ink-soft);}
+  .m-venue{font-size:0.78rem;color:var(--ink-soft);text-align:right;font-style:italic;}
+  .row-actions{display:none;gap:6px;}
+  .row-actions.show{display:flex;}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(6,10,31,0.6);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;overflow-y:auto;}
+  .modal-backdrop.show{display:flex;}
+  .modal{background:#fff;border-radius:18px;padding:28px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;}
+  .modal h3{font-size:1.1rem;margin-bottom:16px;text-transform:uppercase;}
+  .modal label{display:block;font-size:0.78rem;font-weight:700;color:var(--ink-soft);margin-bottom:5px;margin-top:14px;text-transform:uppercase;}
+  .modal input, .modal textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:0.9rem;font-family:inherit;}
+  .modal textarea{resize:vertical;min-height:90px;}
+  .modal .hint{font-size:0.72rem;color:var(--ink-soft);margin-top:4px;}
+  .modal-actions{display:flex;gap:10px;margin-top:22px;}
+  .modal-actions button{flex:1;padding:11px;border-radius:9px;border:none;font-weight:700;cursor:pointer;font-size:0.85rem;}
+  .modal-actions .save{background:var(--navy);color:var(--gold);}
+  .modal-actions .cancel{background:var(--card);color:var(--ink);}
+  .toggle-row{display:flex;align-items:center;gap:10px;margin-top:14px;}
+  .toggle-row input{width:auto;}
+
+  footer{border-top:1px solid var(--line);padding:40px 24px;margin-top:20px;background:var(--navy);color:#fff;}
+  .footer-inner{max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .footer-inner .logo{color:#fff;}
+  .footer-links{display:flex;gap:22px;font-size:0.85rem;color:rgba(255,255,255,0.7);}
+  .footer-tag{font-family:'Anton',sans-serif;color:var(--gold);font-size:0.85rem;text-transform:uppercase;}
+  .empty-note{color:var(--ink-soft);font-size:0.9rem;font-style:italic;}
+
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;padding-top:28px;}
+    nav ul li:not(.admin-li){display:none;}
+    .squad-grid{grid-template-columns:repeat(2,1fr);}
+    .match-row{grid-template-columns:1fr auto 1fr;}
+    .m-date,.m-venue{display:none;}
+  }
+  @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;}}
+</style>
+</head>
+<body>
+
+<div class="admin-bar" id="adminBar">Admin mode on — edits save live for every visitor</div>
+
+<header>
+  <div class="nav-inner">
+    <div class="logo"><span class="logo-mark"><img src="logo.jpg" alt="Super Friends Cricket Team logo"></span>SUPER FRIENDS</div>
+    <nav>
+      <ul>
+        <li><a href="#live">Live</a></li>
+        <li><a href="#squad">Squad</a></li>
+        <li><a href="#matches">Fixtures</a></li>
+        <li class="admin-li"><button class="admin-btn" id="adminToggle">Admin login</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Super Friends Cricket Team</div>
+      <h1>United we<br><span>win</span>.</h1>
+      <p>The home ground for Super Friends CC — live scores, our squad, and every upcoming match.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('live').scrollIntoView({behavior:'smooth'})">Live score</button>
+        <button class="btn-ghost" onclick="document.getElementById('matches').scrollIntoView({behavior:'smooth'})">See fixtures</button>
+      </div>
+    </div>
+    <div class="hero-photo"><img src="logo.jpg" alt="Super Friends Cricket Team"></div>
+  </div>
+
+  <!-- LIVE MATCH -->
+  <section id="live">
+    <div class="section-head">
+      <div><h2>Live match</h2><div class="sub" id="liveSub">Current score, ball by ball.</div></div>
+      <button class="add-btn admin-only" id="editLiveBtn" style="display:none;">Edit live score</button>
+    </div>
+    <div id="liveContainer"></div>
+  </section>
+
+  <section id="squad">
+    <div class="section-head">
+      <div><h2>The squad</h2><div class="sub">Players in Super Friends CC.</div></div>
+      <button class="add-btn admin-only" id="addPlayerBtn" style="display:none;">+ Add player</button>
+    </div>
+    <div class="squad-grid" id="squadGrid"></div>
+  </section>
+
+  <section id="matches">
+    <div class="section-head">
+      <div><h2>Upcoming fixtures</h2><div class="sub">Matches on the calendar.</div></div>
+      <button class="add-btn admin-only" id="addMatchBtn" style="display:none;">+ Add fixture</button>
+    </div>
+    <div class="match-list" id="matchList"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="logo"><span class="logo-mark"><img src="logo.jpg" alt="Super Friends logo"></span>SUPER FRIENDS</div>
+    <div class="footer-tag">United We Win</div>
+    <div class="footer-links"><a href="#live">Live</a><a href="#squad">Squad</a><a href="#matches">Fixtures</a></div>
+  </div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-backdrop" id="loginModal">
+  <div class="modal">
+    <h3>Admin login</h3>
+    <label>Password</label>
+    <input type="password" id="pwInput" placeholder="Enter admin password">
+    <div class="modal-actions">
+      <button class="cancel" id="loginCancel">Cancel</button>
+      <button class="save" id="loginSubmit">Log in</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYER MODAL -->
+<div class="modal-backdrop" id="playerModal">
+  <div class="modal">
+    <h3 id="playerModalTitle">Add player</h3>
+    <label>Name</label><input id="pName" placeholder="Player name">
+    <label>Role</label><input id="pRole" placeholder="Batter / Bowler / All-rounder / Captain">
+    <label>Photo URL (optional)</label><input id="pPhoto" placeholder="https://...">
+    <div class="modal-actions">
+      <button class="cancel" id="playerCancel">Cancel</button>
+      <button class="save" id="playerSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH MODAL -->
+<div class="modal-backdrop" id="matchModal">
+  <div class="modal">
+    <h3 id="matchModalTitle">Add fixture</h3>
+    <label>Opponent team</label><input id="mOpponent" placeholder="Opponent name">
+    <label>Date &amp; time</label><input id="mDate" placeholder="e.g. Sat 2 Aug · 4:00 PM">
+    <label>Venue</label><input id="mVenue" placeholder="Ground name">
+    <div class="modal-actions">
+      <button class="cancel" id="matchCancel">Cancel</button>
+      <button class="save" id="matchSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE MODAL -->
+<div class="modal-backdrop" id="liveModal">
+  <div class="modal">
+    <h3>Edit live score</h3>
+    <div class="toggle-row">
+      <input type="checkbox" id="lActive">
+      <label style="margin:0;">Show live match on site</label>
+    </div>
+    <label>Opponent team</label><input id="lOpponent" placeholder="Opponent name">
+    <label>Our score (e.g. 178/6)</label><input id="lScore" placeholder="178/6">
+    <label>Overs (e.g. 20 overs)</label><input id="lOvers" placeholder="20 overs">
+    <label>Status line (e.g. need 34 off 8, or Full time)</label><input id="lNote" placeholder="need 34 off 8">
+    <label>Match feed — one event per line</label>
+    <textarea id="lEvents" placeholder="18.4 — SIX! Arjun Mehta clears long-on
+17.2 — WICKET — Rohan Iyer c&b, 42 off 31"></textarea>
+    <div class="hint">Format: over.ball — description. Most recent event first.</div>
+    <div class="modal-actions">
+      <button class="cancel" id="liveCancel">Cancel</button>
+      <button class="save" id="liveSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = "SuperFriends@2026"; // change this to your own password
+const FIREBASE_URL = "https://wm-point-e9196-default-rtdb.firebaseio.com"; // your Firebase Realtime Database
+const STORAGE_PATH = "site-content"; // data lives at FIREBASE_URL/site-content.json
+let isAdmin = false;
+let data = { players: [], fixtures: [], live: { active:false, opponent:'', score:'', overs:'', note:'', events:[] } };
+let editingPlayerId = null;
+let editingMatchId = null;
+
+async function loadData(){
+  try{
+    const res = await fetch(`${FIREBASE_URL}/${STORAGE_PATH}.json`);
+    const loaded = await res.json();
+    if(loaded){
+      data = Object.assign({ players: [], fixtures: [], live: { active:false, opponent:'', score:'', overs:'', note:'', events:[] } }, loaded);
+      if(!data.live) data.live = { active:false, opponent:'', score:'', overs:'', note:'', events:[] };
+      if(!Array.isArray(data.players)) data.players = data.players ? Object.values(data.players) : [];
+      if(!Array.isArray(data.fixtures)) data.fixtures = data.fixtures ? Object.values(data.fixtures) : [];
+      if(data.live.events && !Array.isArray(data.live.events)) data.live.events = Object.values(data.live.events);
+    }
+  }catch(e){ console.error("load failed", e); }
+  render();
+}
+async function saveData(){
+  try{
+    const res = await fetch(`${FIREBASE_URL}/${STORAGE_PATH}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if(!res.ok) throw new Error('bad response');
+  }catch(e){ console.error("save failed", e); alert("Could not save — check your connection and try again."); }
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function render(){
+  // LIVE
+  const liveContainer = document.getElementById('liveContainer');
+  const liveSub = document.getElementById('liveSub');
+  if(data.live && data.live.active){
+    liveSub.textContent = data.live.note || 'Current score, ball by ball.';
+    const eventsHtml = (data.live.events || []).map(line=>{
+      const parts = line.split('—');
+      const min = parts.length > 1 ? parts[0].trim() : '';
+      const text = parts.length > 1 ? parts.slice(1).join('—').trim() : line;
+      return `<div class="event-row">${min ? `<span class="mono" style="font-size:0.7rem;background:rgba(255,255,255,0.1);padding:2px 7px;border-radius:6px;min-width:42px;text-align:center;color:var(--gold);">${escapeHtml(min)}</span>`:''}<span class="event-name">${escapeHtml(text)}</span></div>`;
+    }).join('');
+    liveContainer.innerHTML = `
+      <div class="live-card">
+        <div class="live-card-top">
+          <span>Super Friends Cricket Team</span>
+          <span class="live-pill"><span class="dot"></span> Live</span>
+        </div>
+        <div class="teams-row">
+          <div class="team-block"><div class="crest"><img src="logo.jpg" alt=""></div><div class="team-name">Super Friends</div></div>
+          <div class="score-mid">
+            <div class="score-num">${escapeHtml(data.live.score || '—')}</div>
+            <div class="score-sub">${escapeHtml((data.live.overs || '').toUpperCase())}</div>
+            <div class="clock">${escapeHtml(data.live.note || '')}</div>
+          </div>
+          <div class="team-block"><div class="crest">${escapeHtml((data.live.opponent||'??').slice(0,2).toUpperCase())}</div><div class="team-name">${escapeHtml(data.live.opponent || 'Opponent')}</div></div>
+        </div>
+        ${eventsHtml ? `<div class="events-strip">${eventsHtml}</div>` : ''}
+      </div>`;
+  } else {
+    liveContainer.innerHTML = `<div class="live-empty">No live match right now — check back on match day.</div>`;
+  }
+
+  // SQUAD
+  const grid = document.getElementById('squadGrid');
+  grid.innerHTML = '';
+  if(data.players.length === 0){ grid.innerHTML = '<div class="empty-note">No players added yet.</div>'; }
+  data.players.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    card.innerHTML = `
+      <div class="player-photo">${p.photo ? `<img src="${escapeHtml(p.photo)}" alt="${escapeHtml(p.name)}">` : `<span class="plus">+</span>No photo`}</div>
+      <div class="player-name">${escapeHtml(p.name)}</div>
+      <div class="player-role">${escapeHtml(p.role)}</div>
+      <div class="card-actions ${isAdmin ? 'show' : ''}">
+        <button class="mini-btn edit" onclick="openPlayerModal('${p.id}')">Edit</button>
+        <button class="mini-btn del" onclick="deletePlayer('${p.id}')">Delete</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // FIXTURES
+  const list = document.getElementById('matchList');
+  list.innerHTML = '';
+  if(data.fixtures.length === 0){ list.innerHTML = '<div class="empty-note">No fixtures scheduled yet.</div>'; }
+  data.fixtures.forEach(m=>{
+    const row = document.createElement('div');
+    row.className = 'match-row';
+    row.innerHTML = `
+      <div class="m-team"><span class="m-crest"><img src="logo.jpg" alt=""></span>Super Friends</div>
+      <div class="m-vs">VS</div>
+      <div class="m-team right">${escapeHtml(m.opponent)}</div>
+      <div class="m-date">${escapeHtml(m.date)}</div>
+      <div class="m-venue">${escapeHtml(m.venue)}</div>
+      <div class="row-actions ${isAdmin ? 'show' : ''}">
+        <button class="mini-btn edit" onclick="openMatchModal('${m.id}')">Edit</button>
+        <button class="mini-btn del" onclick="deleteMatch('${m.id}')">Delete</button>
+      </div>`;
+    list.appendChild(row);
+  });
+
+  document.getElementById('addPlayerBtn').style.display = isAdmin ? 'inline-block' : 'none';
+  document.getElementById('addMatchBtn').style.display = isAdmin ? 'inline-block' : 'none';
+  document.getElementById('editLiveBtn').style.display = isAdmin ? 'inline-block' : 'none';
+  document.getElementById('adminBar').classList.toggle('show', isAdmin);
+  document.getElementById('adminToggle').textContent = isAdmin ? 'Log out' : 'Admin login';
+  document.getElementById('adminToggle').classList.toggle('on', isAdmin);
+}
+
+// ADMIN LOGIN
+document.getElementById('adminToggle').addEventListener('click', ()=>{
+  if(isAdmin){ isAdmin = false; render(); }
+  else{ document.getElementById('loginModal').classList.add('show'); document.getElementById('pwInput').value=''; document.getElementById('pwInput').focus(); }
+});
+document.getElementById('loginCancel').addEventListener('click', ()=> document.getElementById('loginModal').classList.remove('show'));
+document.getElementById('loginSubmit').addEventListener('click', ()=>{
+  if(document.getElementById('pwInput').value === ADMIN_PASSWORD){
+    isAdmin = true;
+    document.getElementById('loginModal').classList.remove('show');
+    render();
+  } else { alert('Wrong password.'); }
+});
+
+// PLAYER MODAL
+document.getElementById('addPlayerBtn').addEventListener('click', ()=> openPlayerModal(null));
+document.getElementById('playerCancel').addEventListener('click', ()=> document.getElementById('playerModal').classList.remove('show'));
+function openPlayerModal(id){
+  editingPlayerId = id;
+  const modal = document.getElementById('playerModal');
+  if(id){
+    const p = data.players.find(x=>x.id===id);
+    document.getElementById('playerModalTitle').textContent = 'Edit player';
+    document.getElementById('pName').value = p.name;
+    document.getElementById('pRole').value = p.role;
+    document.getElementById('pPhoto').value = p.photo || '';
+  } else {
+    document.getElementById('playerModalTitle').textContent = 'Add player';
+    document.getElementById('pName').value = '';
+    document.getElementById('pRole').value = '';
+    document.getElementById('pPhoto').value = '';
+  }
+  modal.classList.add('show');
+}
+document.getElementById('playerSave').addEventListener('click', async ()=>{
+  const name = document.getElementById('pName').value.trim();
+  const role = document.getElementById('pRole').value.trim();
+  const photo = document.getElementById('pPhoto').value.trim();
+  if(!name){ alert('Enter a name.'); return; }
+  if(editingPlayerId){
+    const p = data.players.find(x=>x.id===editingPlayerId);
+    p.name=name; p.role=role; p.photo=photo;
+  } else {
+    data.players.push({ id: uid(), name, role, photo });
+  }
+  await saveData();
+  document.getElementById('playerModal').classList.remove('show');
+  render();
+});
+window.deletePlayer = async (id)=>{ if(!confirm('Delete this player?')) return; data.players = data.players.filter(p=>p.id!==id); await saveData(); render(); };
+window.openPlayerModal = openPlayerModal;
+
+// MATCH MODAL
+document.getElementById('addMatchBtn').addEventListener('click', ()=> openMatchModal(null));
+document.getElementById('matchCancel').addEventListener('click', ()=> document.getElementById('matchModal').classList.remove('show'));
+function openMatchModal(id){
+  editingMatchId = id;
+  const modal = document.getElementById('matchModal');
+  if(id){
+    const m = data.fixtures.find(x=>x.id===id);
+    document.getElementById('matchModalTitle').textContent = 'Edit fixture';
+    document.getElementById('mOpponent').value = m.opponent;
+    document.getElementById('mDate').value = m.date;
+    document.getElementById('mVenue').value = m.venue;
+  } else {
+    document.getElementById('matchModalTitle').textContent = 'Add fixture';
+    document.getElementById('mOpponent').value = '';
+    document.getElementById('mDate').value = '';
+    document.getElementById('mVenue').value = '';
+  }
+  modal.classList.add('show');
+}
+document.getElementById('matchSave').addEventListener('click', async ()=>{
+  const opponent = document.getElementById('mOpponent').value.trim();
+  const date = document.getElementById('mDate').value.trim();
+  const venue = document.getElementById('mVenue').value.trim();
+  if(!opponent){ alert('Enter opponent team.'); return; }
+  if(editingMatchId){
+    const m = data.fixtures.find(x=>x.id===editingMatchId);
+    m.opponent=opponent; m.date=date; m.venue=venue;
+  } else {
+    data.fixtures.push({ id: uid(), opponent, date, venue });
+  }
+  await saveData();
+  document.getElementById('matchModal').classList.remove('show');
+  render();
+});
+window.openMatchModal = openMatchModal;
+window.deleteMatch = async (id)=>{ if(!confirm('Delete this fixture?')) return; data.fixtures = data.fixtures.filter(m=>m.id!==id); await saveData(); render(); };
+
+// LIVE MODAL
+document.getElementById('editLiveBtn').addEventListener('click', ()=>{
+  const l = data.live;
+  document.getElementById('lActive').checked = !!l.active;
+  document.getElementById('lOpponent').value = l.opponent || '';
+  document.getElementById('lScore').value = l.score || '';
+  document.getElementById('lOvers').value = l.overs || '';
+  document.getElementById('lNote').value = l.note || '';
+  document.getElementById('lEvents').value = (l.events || []).join('\n');
+  document.getElementById('liveModal').classList.add('show');
+});
+document.getElementById('liveCancel').addEventListener('click', ()=> document.getElementById('liveModal').classList.remove('show'));
+document.getElementById('liveSave').addEventListener('click', async ()=>{
+  data.live = {
+    active: document.getElementById('lActive').checked,
+    opponent: document.getElementById('lOpponent').value.trim(),
+    score: document.getElementById('lScore').value.trim(),
+    overs: document.getElementById('lOvers').value.trim(),
+    note: document.getElementById('lNote').value.trim(),
+    events: document.getElementById('lEvents').value.split('\n').map(s=>s.trim()).filter(Boolean)
+  };
+  await saveData();
+  document.getElementById('liveModal').classList.remove('show');
+  render();
+});
+
+loadData();
+</script>
+
+</body>
+</html>
