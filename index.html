@@ -67,7 +67,7 @@
   .score-num{font-family:'Anton',sans-serif;font-size:2.1rem;}
   .score-sub{font-size:0.7rem;color:var(--gold);font-weight:600;letter-spacing:0.03em;}
   .clock{font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.7);margin-top:3px;}
-  .events-strip{display:flex;flex-direction:column;gap:9px;position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;}
+  .events-strip{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;max-height:220px;overflow-y:auto;}
   .event-row{display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;}
   .event-name{font-weight:500;opacity:0.95;}
   .live-empty{background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:30px;text-align:center;color:var(--ink-soft);font-size:0.9rem;}
@@ -313,6 +313,39 @@ function uid(){ return Date.now().toString(36) + Math.random().toString(36).slic
 
 function oversStr(balls){ return Math.floor(balls/6) + '.' + (balls%6); }
 
+function groupByOvers(history){
+  const overs = {};
+  const order = [];
+  (history || []).forEach(b=>{
+    const overNum = parseInt(b.overBall.split('.')[0], 10);
+    if(!overs[overNum]){ overs[overNum] = []; order.push(overNum); }
+    overs[overNum].push(b);
+  });
+  return order.sort((a,b)=>a-b).map(n=>({ over:n, balls: overs[n] }));
+}
+
+function ballChipHtml(b, dark){
+  const isWicket = b.wicket;
+  const isExtra = !b.legal && !isWicket;
+  const isBoundary = b.runs >= 4 && b.legal;
+  let bg = dark ? 'rgba(255,255,255,0.12)' : 'var(--card)';
+  let fg = dark ? '#fff' : 'var(--ink)';
+  if(isWicket){ bg = 'var(--red)'; fg = '#fff'; }
+  else if(isBoundary){ bg = 'var(--gold)'; fg = 'var(--navy)'; }
+  else if(isExtra){ bg = dark ? 'rgba(242,185,0,0.25)' : '#FDECC8'; fg = dark ? 'var(--gold)' : 'var(--navy)'; }
+  return `<span title="${escapeHtml(b.overBall+' — '+b.label)}" style="display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 4px;border-radius:50%;background:${bg};color:${fg};font-family:'IBM Plex Mono',monospace;font-size:0.72rem;font-weight:700;flex-shrink:0;">${escapeHtml(b.code)}</span>`;
+}
+
+function oversFeedHtml(history, dark){
+  const groups = groupByOvers(history);
+  if(!groups.length) return '';
+  return groups.map(g=>`
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:${dark?'var(--gold)':'var(--ink-soft)'};min-width:34px;flex-shrink:0;">Ov ${g.over+1}</span>
+      <div style="display:flex;gap:6px;overflow-x:auto;">${g.balls.map(b=>ballChipHtml(b, dark)).join('')}</div>
+    </div>`).join('');
+}
+
 function render(){
   // LIVE
   const liveContainer = document.getElementById('liveContainer');
@@ -320,10 +353,7 @@ function render(){
   if(data.live && data.live.active){
     const l = data.live;
     liveSub.textContent = l.note || 'Current score, ball by ball.';
-    const recent = (l.history || []).slice(-6).reverse();
-    const eventsHtml = recent.map(b=>{
-      return `<div class="event-row"><span class="mono" style="font-size:0.7rem;background:rgba(255,255,255,0.1);padding:2px 7px;border-radius:6px;min-width:42px;text-align:center;color:var(--gold);">${escapeHtml(b.overBall)}</span><span class="event-name">${escapeHtml(b.label)}</span></div>`;
-    }).join('');
+    const eventsHtml = oversFeedHtml(l.history, true);
     liveContainer.innerHTML = `
       <div class="live-card">
         <div class="live-card-top">
@@ -512,12 +542,8 @@ function renderScoringPad(){
   ).join('');
 
   const hist = document.getElementById('ballHistory');
-  const recent = (l.history || []).slice(-8).reverse();
-  hist.innerHTML = recent.length ? recent.map(b=>
-    `<div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:7px 10px;border-radius:8px;font-size:0.8rem;">
-      <span><b class="mono">${escapeHtml(b.overBall)}</b> — ${escapeHtml(b.label)}</span>
-    </div>`
-  ).join('') : '<div class="empty-note" style="font-size:0.8rem;">No balls recorded yet.</div>';
+  const feed = oversFeedHtml(l.history, false);
+  hist.innerHTML = feed ? feed : '<div class="empty-note" style="font-size:0.8rem;">No balls recorded yet.</div>';
 }
 
 function currentOverBall(legal){
@@ -531,7 +557,7 @@ window.scoreBall = async (i)=>{
   const overBall = currentOverBall(true);
   data.live.runs += b.runs;
   data.live.balls += 1;
-  data.live.history.push({ overBall, label: b.label, runs:b.runs, wicket:false, legal:true });
+  data.live.history.push({ overBall, label: b.label, runs:b.runs, wicket:false, legal:true, code:b.display });
   await saveData();
   renderScoringPad(); render();
 };
@@ -540,16 +566,16 @@ window.scoreExtra = async (i)=>{
   if(b.type === 'wide'){
     const overBall = currentOverBall(false);
     data.live.runs += 1;
-    data.live.history.push({ overBall, label:'Wide', runs:1, wicket:false, legal:false });
+    data.live.history.push({ overBall, label:'Wide', runs:1, wicket:false, legal:false, code:'WD' });
   } else if(b.type === 'noball'){
     const overBall = currentOverBall(false);
     data.live.runs += 1;
-    data.live.history.push({ overBall, label:'No ball', runs:1, wicket:false, legal:false });
+    data.live.history.push({ overBall, label:'No ball', runs:1, wicket:false, legal:false, code:'NB' });
   } else if(b.type === 'wicket'){
     const overBall = currentOverBall(true);
     data.live.wickets += 1;
     data.live.balls += 1;
-    data.live.history.push({ overBall, label:'WICKET', runs:0, wicket:true, legal:true });
+    data.live.history.push({ overBall, label:'WICKET', runs:0, wicket:true, legal:true, code:'W' });
   }
   await saveData();
   renderScoringPad(); render();
