@@ -239,33 +239,42 @@
 
 <!-- LIVE MODAL -->
 <div class="modal-backdrop" id="liveModal">
-  <div class="modal">
-    <h3>Edit live score</h3>
+  <div class="modal" style="max-width:420px;">
+    <h3>Live scoring</h3>
     <div class="toggle-row">
       <input type="checkbox" id="lActive">
       <label style="margin:0;">Show live match on site</label>
     </div>
     <label>Opponent team</label><input id="lOpponent" placeholder="Opponent name">
-    <label>Our score (e.g. 178/6)</label><input id="lScore" placeholder="178/6">
-    <label>Overs (e.g. 20 overs)</label><input id="lOvers" placeholder="20 overs">
-    <label>Status line (e.g. need 34 off 8, or Full time)</label><input id="lNote" placeholder="need 34 off 8">
-    <label>Match feed — one event per line</label>
-    <textarea id="lEvents" placeholder="18.4 — SIX! Arjun Mehta clears long-on
-17.2 — WICKET — Rohan Iyer c&b, 42 off 31"></textarea>
-    <div class="hint">Format: over.ball — description. Most recent event first.</div>
-    <div class="modal-actions">
-      <button class="cancel" id="liveCancel">Cancel</button>
-      <button class="save" id="liveSave">Save</button>
+    <label>Status line (optional, e.g. need 34 off 8)</label><input id="lNote" placeholder="need 34 off 8">
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="cancel" id="liveDetailsCancel">Close</button>
+      <button class="save" id="liveDetailsSave">Save details</button>
+    </div>
+
+    <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:16px;">
+      <div style="text-align:center;font-family:'Anton',sans-serif;font-size:1.8rem;" id="scorePreview">0/0</div>
+      <div style="text-align:center;font-size:0.78rem;color:var(--ink-soft);margin-bottom:14px;" id="oversPreview">0.0 overs</div>
+
+      <div class="hint" style="margin-bottom:6px;">Tap what happened on each ball</div>
+      <div id="runButtons" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;"></div>
+      <div id="extraButtons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;"></div>
+      <button id="undoBallBtn" style="width:100%;background:var(--card);border:1px dashed var(--line);color:var(--ink-soft);padding:9px;border-radius:9px;font-weight:700;font-size:0.82rem;cursor:pointer;">↺ Undo last ball</button>
+
+      <div class="hint" style="margin:14px 0 6px;">Recent balls</div>
+      <div id="ballHistory" style="display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;"></div>
     </div>
   </div>
 </div>
+
 
 <script>
 const ADMIN_PASSWORD = "SuperFriends@2026"; // change this to your own password
 const FIREBASE_URL = "https://wm-point-e9196-default-rtdb.firebaseio.com"; // your Firebase Realtime Database
 const STORAGE_PATH = "site-content"; // data lives at FIREBASE_URL/site-content.json
 let isAdmin = false;
-let data = { players: [], fixtures: [], live: { active:false, opponent:'', score:'', overs:'', note:'', events:[] } };
+const DEFAULT_LIVE = { active:false, opponent:'', note:'', runs:0, wickets:0, balls:0, history:[] };
+let data = { players: [], fixtures: [], live: Object.assign({}, DEFAULT_LIVE) };
 let editingPlayerId = null;
 let editingMatchId = null;
 
@@ -274,14 +283,15 @@ async function loadData(){
     const res = await fetch(`${FIREBASE_URL}/${STORAGE_PATH}.json`);
     const loaded = await res.json();
     if(loaded){
-      data = Object.assign({ players: [], fixtures: [], live: { active:false, opponent:'', score:'', overs:'', note:'', events:[] } }, loaded);
-      if(!data.live) data.live = { active:false, opponent:'', score:'', overs:'', note:'', events:[] };
+      data = Object.assign({ players: [], fixtures: [], live: Object.assign({}, DEFAULT_LIVE) }, loaded);
+      data.live = Object.assign({}, DEFAULT_LIVE, data.live || {});
       if(!Array.isArray(data.players)) data.players = data.players ? Object.values(data.players) : [];
       if(!Array.isArray(data.fixtures)) data.fixtures = data.fixtures ? Object.values(data.fixtures) : [];
-      if(data.live.events && !Array.isArray(data.live.events)) data.live.events = Object.values(data.live.events);
+      if(!Array.isArray(data.live.history)) data.live.history = data.live.history ? Object.values(data.live.history) : [];
     }
   }catch(e){ console.error("load failed", e); }
   render();
+  if(isAdmin) renderScoringPad();
 }
 async function saveData(){
   try{
@@ -301,17 +311,18 @@ function escapeHtml(str){
 }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
+function oversStr(balls){ return Math.floor(balls/6) + '.' + (balls%6); }
+
 function render(){
   // LIVE
   const liveContainer = document.getElementById('liveContainer');
   const liveSub = document.getElementById('liveSub');
   if(data.live && data.live.active){
-    liveSub.textContent = data.live.note || 'Current score, ball by ball.';
-    const eventsHtml = (data.live.events || []).map(line=>{
-      const parts = line.split('—');
-      const min = parts.length > 1 ? parts[0].trim() : '';
-      const text = parts.length > 1 ? parts.slice(1).join('—').trim() : line;
-      return `<div class="event-row">${min ? `<span class="mono" style="font-size:0.7rem;background:rgba(255,255,255,0.1);padding:2px 7px;border-radius:6px;min-width:42px;text-align:center;color:var(--gold);">${escapeHtml(min)}</span>`:''}<span class="event-name">${escapeHtml(text)}</span></div>`;
+    const l = data.live;
+    liveSub.textContent = l.note || 'Current score, ball by ball.';
+    const recent = (l.history || []).slice(-6).reverse();
+    const eventsHtml = recent.map(b=>{
+      return `<div class="event-row"><span class="mono" style="font-size:0.7rem;background:rgba(255,255,255,0.1);padding:2px 7px;border-radius:6px;min-width:42px;text-align:center;color:var(--gold);">${escapeHtml(b.overBall)}</span><span class="event-name">${escapeHtml(b.label)}</span></div>`;
     }).join('');
     liveContainer.innerHTML = `
       <div class="live-card">
@@ -322,11 +333,11 @@ function render(){
         <div class="teams-row">
           <div class="team-block"><div class="crest"><img src="logo.jpg" alt=""></div><div class="team-name">Super Friends</div></div>
           <div class="score-mid">
-            <div class="score-num">${escapeHtml(data.live.score || '—')}</div>
-            <div class="score-sub">${escapeHtml((data.live.overs || '').toUpperCase())}</div>
-            <div class="clock">${escapeHtml(data.live.note || '')}</div>
+            <div class="score-num">${l.runs}/${l.wickets}</div>
+            <div class="score-sub">${oversStr(l.balls)} OVERS</div>
+            <div class="clock">${escapeHtml(l.note || '')}</div>
           </div>
-          <div class="team-block"><div class="crest">${escapeHtml((data.live.opponent||'??').slice(0,2).toUpperCase())}</div><div class="team-name">${escapeHtml(data.live.opponent || 'Opponent')}</div></div>
+          <div class="team-block"><div class="crest">${escapeHtml((l.opponent||'??').slice(0,2).toUpperCase())}</div><div class="team-name">${escapeHtml(l.opponent || 'Opponent')}</div></div>
         </div>
         ${eventsHtml ? `<div class="events-strip">${eventsHtml}</div>` : ''}
       </div>`;
@@ -470,31 +481,106 @@ document.getElementById('matchSave').addEventListener('click', async ()=>{
 window.openMatchModal = openMatchModal;
 window.deleteMatch = async (id)=>{ if(!confirm('Delete this fixture?')) return; data.fixtures = data.fixtures.filter(m=>m.id!==id); await saveData(); render(); };
 
-// LIVE MODAL
+// LIVE MODAL — tap-based scoring pad
+const RUN_BUTTONS = [
+  {runs:0, label:'Dot ball', display:'0'},
+  {runs:1, label:'1 run', display:'1'},
+  {runs:2, label:'2 runs', display:'2'},
+  {runs:3, label:'3 runs', display:'3'},
+  {runs:4, label:'FOUR', display:'4'},
+  {runs:6, label:'SIX', display:'6'},
+];
+const EXTRA_BUTTONS = [
+  {type:'wide', label:'Wide', display:'WD'},
+  {type:'noball', label:'No ball', display:'NB'},
+  {type:'wicket', label:'WICKET', display:'OUT'},
+];
+
+function renderScoringPad(){
+  const l = data.live;
+  document.getElementById('scorePreview').textContent = `${l.runs}/${l.wickets}`;
+  document.getElementById('oversPreview').textContent = oversStr(l.balls) + ' overs';
+
+  const runBox = document.getElementById('runButtons');
+  runBox.innerHTML = RUN_BUTTONS.map((b,i)=>
+    `<button onclick="scoreBall(${i})" style="padding:14px 0;border-radius:10px;border:none;background:${b.runs>=4?'var(--gold)':'var(--card)'};color:${b.runs>=4?'var(--navy)':'var(--ink)'};font-family:'Anton',sans-serif;font-size:1.1rem;cursor:pointer;">${b.display}</button>`
+  ).join('');
+
+  const extraBox = document.getElementById('extraButtons');
+  extraBox.innerHTML = EXTRA_BUTTONS.map((b,i)=>
+    `<button onclick="scoreExtra(${i})" style="padding:11px 0;border-radius:10px;border:none;background:${b.type==='wicket'?'var(--red)':'var(--navy)'};color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer;">${b.display}</button>`
+  ).join('');
+
+  const hist = document.getElementById('ballHistory');
+  const recent = (l.history || []).slice(-8).reverse();
+  hist.innerHTML = recent.length ? recent.map(b=>
+    `<div style="display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:7px 10px;border-radius:8px;font-size:0.8rem;">
+      <span><b class="mono">${escapeHtml(b.overBall)}</b> — ${escapeHtml(b.label)}</span>
+    </div>`
+  ).join('') : '<div class="empty-note" style="font-size:0.8rem;">No balls recorded yet.</div>';
+}
+
+function currentOverBall(legal){
+  // over.ball label for the ball about to be bowled
+  const ballInOver = (data.live.balls % 6) + (legal ? 1 : 0);
+  return Math.floor(data.live.balls/6) + '.' + (ballInOver === 0 ? 6 : ballInOver);
+}
+
+window.scoreBall = async (i)=>{
+  const b = RUN_BUTTONS[i];
+  const overBall = currentOverBall(true);
+  data.live.runs += b.runs;
+  data.live.balls += 1;
+  data.live.history.push({ overBall, label: b.label, runs:b.runs, wicket:false, legal:true });
+  await saveData();
+  renderScoringPad(); render();
+};
+window.scoreExtra = async (i)=>{
+  const b = EXTRA_BUTTONS[i];
+  if(b.type === 'wide'){
+    const overBall = currentOverBall(false);
+    data.live.runs += 1;
+    data.live.history.push({ overBall, label:'Wide', runs:1, wicket:false, legal:false });
+  } else if(b.type === 'noball'){
+    const overBall = currentOverBall(false);
+    data.live.runs += 1;
+    data.live.history.push({ overBall, label:'No ball', runs:1, wicket:false, legal:false });
+  } else if(b.type === 'wicket'){
+    const overBall = currentOverBall(true);
+    data.live.wickets += 1;
+    data.live.balls += 1;
+    data.live.history.push({ overBall, label:'WICKET', runs:0, wicket:true, legal:true });
+  }
+  await saveData();
+  renderScoringPad(); render();
+};
+document.getElementById('undoBallBtn').addEventListener('click', async ()=>{
+  const last = data.live.history.pop();
+  if(!last){ return; }
+  data.live.runs -= last.runs;
+  if(last.wicket) data.live.wickets -= 1;
+  if(last.legal) data.live.balls -= 1;
+  await saveData();
+  renderScoringPad(); render();
+});
+
 document.getElementById('editLiveBtn').addEventListener('click', ()=>{
   const l = data.live;
   document.getElementById('lActive').checked = !!l.active;
   document.getElementById('lOpponent').value = l.opponent || '';
-  document.getElementById('lScore').value = l.score || '';
-  document.getElementById('lOvers').value = l.overs || '';
   document.getElementById('lNote').value = l.note || '';
-  document.getElementById('lEvents').value = (l.events || []).join('\n');
+  renderScoringPad();
   document.getElementById('liveModal').classList.add('show');
 });
-document.getElementById('liveCancel').addEventListener('click', ()=> document.getElementById('liveModal').classList.remove('show'));
-document.getElementById('liveSave').addEventListener('click', async ()=>{
-  data.live = {
-    active: document.getElementById('lActive').checked,
-    opponent: document.getElementById('lOpponent').value.trim(),
-    score: document.getElementById('lScore').value.trim(),
-    overs: document.getElementById('lOvers').value.trim(),
-    note: document.getElementById('lNote').value.trim(),
-    events: document.getElementById('lEvents').value.split('\n').map(s=>s.trim()).filter(Boolean)
-  };
+document.getElementById('liveDetailsCancel').addEventListener('click', ()=> document.getElementById('liveModal').classList.remove('show'));
+document.getElementById('liveDetailsSave').addEventListener('click', async ()=>{
+  data.live.active = document.getElementById('lActive').checked;
+  data.live.opponent = document.getElementById('lOpponent').value.trim();
+  data.live.note = document.getElementById('lNote').value.trim();
   await saveData();
-  document.getElementById('liveModal').classList.remove('show');
   render();
 });
+
 
 loadData();
 
@@ -507,4 +593,4 @@ setInterval(()=>{
 </script>
 
 </body>
-                                                                                 </html>
+</html>
