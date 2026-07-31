@@ -38,7 +38,7 @@
   @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
   .back-btn{background:none;border:none;color:var(--ink-soft);font-weight:700;font-size:0.85rem;cursor:pointer;padding:0 0 18px;}
   .back-btn:hover{color:var(--navy);}
-  .menu-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+  .menu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
   .menu-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 18px;text-align:center;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
   .menu-card:hover{transform:translateY(-4px);box-shadow:0 16px 30px -14px rgba(11,18,51,0.25);border-color:var(--gold);}
   .menu-icon{font-size:2rem;margin-bottom:10px;}
@@ -169,7 +169,6 @@
       <ul>
         <li><a href="#" onclick="showPage('home');return false;">Home</a></li>
         <li><a href="#" onclick="showPage('live');return false;">Live</a></li>
-        <li><a href="#" onclick="showPage('scorecard');return false;">Scorecard</a></li>
         <li><a href="#" onclick="showPage('history');return false;">Results</a></li>
         <li><a href="#" onclick="showPage('squad');return false;">Squad</a></li>
         <li><a href="#" onclick="showPage('matches');return false;">Fixtures</a></li>
@@ -197,11 +196,6 @@
           <div class="menu-icon">🏏</div>
           <div class="menu-title">Live Match</div>
           <div class="menu-sub">Ball by ball score</div>
-        </div>
-        <div class="menu-card" onclick="showPage('scorecard')">
-          <div class="menu-icon">📋</div>
-          <div class="menu-title">Scorecard</div>
-          <div class="menu-sub">Full batting &amp; bowling</div>
         </div>
         <div class="menu-card" onclick="showPage('history')">
           <div class="menu-icon">🏆</div>
@@ -231,14 +225,8 @@
         <button class="add-btn admin-only" id="editLiveBtn" style="display:none;">Edit live score</button>
       </div>
       <div id="liveContainer"></div>
-      <a href="#" class="sc-link" onclick="showPage('scorecard');return false;">View full scorecard →</a>
-    </section>
-  </div>
 
-  <div class="page" id="scorecard">
-    <section>
-      <button class="back-btn" onclick="showPage('home')">← Home</button>
-      <div class="section-head">
+      <div class="section-head" style="margin-top:36px;">
         <div><h2>Scorecard</h2><div class="sub">Full batting, bowling and extras.</div></div>
       </div>
       <div id="scorecardContainer"></div>
@@ -545,6 +533,12 @@ function scoreLineFor(l, side){
   return '';
 }
 
+function playerAvatarHtml(name){
+  const p = (data.players||[]).find(x=>x.name===name);
+  const photo = p && p.photo;
+  return `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--card);overflow:hidden;flex-shrink:0;font-size:0.6rem;color:var(--ink-soft);vertical-align:middle;margin-right:6px;">${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml((name||'?').slice(0,1).toUpperCase())}</span>`;
+}
+
 function battingTableHtml(battingCard, strikerName, nonStrikerName){
   if(!battingCard || !battingCard.length) return '<div class="empty-note">No batsmen yet.</div>';
   return `<div class="sc-table-wrap"><table class="sc-table"><thead><tr>
@@ -553,7 +547,7 @@ function battingTableHtml(battingCard, strikerName, nonStrikerName){
     ${battingCard.map(b=>{
       const atCrease = !b.isOut && (b.name===strikerName || b.name===nonStrikerName);
       const sr = b.balls ? ((b.runs/b.balls)*100).toFixed(1) : '0.0';
-      return `<tr><td>${escapeHtml(b.name)}${atCrease?' <span style="color:var(--gold);">●</span>':''}</td><td>${b.isOut ? escapeHtml(b.dismissal) : 'not out'}</td><td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${sr}</td></tr>`;
+      return `<tr><td>${playerAvatarHtml(b.name)}${escapeHtml(b.name)}${atCrease?' <span style="color:var(--gold);">●</span>':''}</td><td>${b.isOut ? escapeHtml(b.dismissal) : 'not out'}</td><td>${b.runs}</td><td>${b.balls}</td><td>${b.fours}</td><td>${b.sixes}</td><td>${sr}</td></tr>`;
     }).join('')}
   </tbody></table></div>`;
 }
@@ -565,7 +559,7 @@ function bowlingTableHtml(bowlingCard){
     ${bowlingCard.map(b=>{
       const oversDisp = oversStr(b.ballsBowled);
       const econ = b.ballsBowled ? (b.runs/(b.ballsBowled/6)).toFixed(2) : '0.00';
-      return `<tr><td>${escapeHtml(b.name)}</td><td>${oversDisp}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${econ}</td></tr>`;
+      return `<tr><td>${playerAvatarHtml(b.name)}${escapeHtml(b.name)}</td><td>${oversDisp}</td><td>${b.maidens}</td><td>${b.runs}</td><td>${b.wickets}</td><td>${econ}</td></tr>`;
     }).join('')}
   </tbody></table></div>`;
 }
