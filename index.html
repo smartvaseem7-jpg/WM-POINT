@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Super Friends — Cricket Scoring</title>
+<meta name="description" content="Premium real-time cricket scoring app — live matches, tournaments, player stats and ball-by-ball scoring." />
+<meta name="theme-color" content="#5B5FEF" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Super Friends" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="css/styles.css" />
+
+<!-- ============================================================
+     FIREBASE SDKS (commented — uncomment once you set USE_FIREBASE
+     = true and fill in FIREBASE_CONFIG inside js/db.js)
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { FIREBASE_CONFIG } from "./js/db.js";
+  const fbApp = initializeApp(FIREBASE_CONFIG);
+  window.__firebaseDb = getDatabase(fbApp);
+  window.__firebaseAuth = getAuth(fbApp);
+</script>
+============================================================= -->
+</head>
+<body>
+  <div class="floodlights"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">SF</div>
+        <div class="brand-name">Super Friends</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="notifBtn" title="Enable notifications"></button>
+        <button class="icon-btn" id="themeToggle" title="Toggle theme"></button>
+      </div>
+    </header>
+
+    <main id="view" class="view"></main>
+
+    <nav class="bottom-nav">
+      <a class="nav-item" data-route="home" href="#/home"></a>
+      <a class="nav-item" data-route="tournament" href="#/tournament/tour1"></a>
+      <a class="nav-item" data-route="teams" href="#/teams"></a>
+      <a class="nav-item" data-route="admin" href="#/admin"></a>
+    </nav>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/scoring.js"></script>
+  <script>
+    // fill in bottom nav icons + labels (kept in one place with ICON map from app.js)
+    window.addEventListener("DOMContentLoaded", () => {
+      const nav = document.querySelector(".bottom-nav");
+      const items = [
+        { route: "home", icon: "home", label: "Home" },
+        { route: "tournament", icon: "trophy", label: "Cups" },
+        { route: "teams", icon: "users", label: "Teams" },
+        { route: "admin", icon: "admin", label: "Admin" },
+      ];
+      nav.querySelectorAll(".nav-item").forEach((a, i) => {
+        a.innerHTML = ICON[items[i].icon] + `<span>${items[i].label}</span>`;
+      });
+      document.getElementById("notifBtn").innerHTML = ICON.bell;
+    });
+  </script>
+</body>
+</html>
