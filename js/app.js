@@ -40,6 +40,14 @@ const ICON = {
   search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`,
   info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>`,
   check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
+  clover: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2-4-6-4-7-1s2 5 5 3c-2 3-1 6 2 6s4-3 2-6c3 2 6 0 5-3s-5-3-7 1Z"/><path d="M12 12v8"/></svg>`,
+  flag: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h13l-3 4 3 4H5"/></svg>`,
+  heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-9.5-8.8C.7 8 2 4.5 5.3 4c2-.3 3.7.7 4.7 2.3C11 4.7 12.7 3.7 14.7 4 18 4.5 19.3 8 17.5 11.2 15 15.6 12 20 12 20Z"/></svg>`,
+  gear: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.6-1.2-1.5-2.6-1.9.6a7.7 7.7 0 0 0-2.6-1.5L14.6 3h-3l-.4 2.8a7.7 7.7 0 0 0-2.6 1.5l-1.9-.6-1.5 2.6L6.6 10.5a7.6 7.6 0 0 0 0 3L5 14.7l1.5 2.6 1.9-.6c.75.7 1.63 1.2 2.6 1.5l.4 2.8h3l.4-2.8a7.7 7.7 0 0 0 2.6-1.5l1.9.6 1.5-2.6z"/></svg>`,
+  play: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg>`,
+  stamp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M12 12v3M6 21h12l-1.5-4h-9L6 21z"/></svg>`,
+  matches: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>`,
+  chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`,
 };
 
 /* ---------------- theme ---------------- */
@@ -55,26 +63,87 @@ function toggleTheme() {
 }
 
 /* ---------------- menu sheet ---------------- */
-function openMenuSheet() {
+async function openMenuSheet() {
+  const state = await DB.getState();
+  const me = state.players[0];
   const backdrop = el(`
     <div class="modal-backdrop">
-      <div class="modal-sheet">
+      <div class="modal-sheet" style="padding-left:0;padding-right:0">
         <div class="modal-handle"></div>
-        <div style="display:flex;flex-direction:column;gap:2px">
-          ${menuLink("home", "Home", "#/home")}
-          ${menuLink("trophy", "Tournaments", "#/tournament/tour1")}
-          ${menuLink("users", "Teams", "#/teams")}
-          ${menuLink("admin", "Admin panel", "#/admin")}
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 20px 16px;border-bottom:1px solid var(--border)">
+          <div class="avatar" style="background:${me ? avatarColor(me.name) : "var(--teal)"};width:52px;height:52px;font-size:17px">${me ? initials(me.name) : "?"}</div>
+          <div style="font-weight:700;font-size:16px">${me ? me.name : "Guest"}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;padding:6px 20px 4px">
+          ${menuLink("matches", "My Matches", "#/admin")}
+          ${menuLink("trophy", "My Tournaments", "#/tournament/" + (state.tournaments[0]?.id || ""))}
+          ${menuLink("check", "Profile", me ? "#/player/" + me.id : "#/home")}
+          ${menuLink("users", "My Teams", "#/teams")}
+          ${menuLink("clover", "My Clubs", "#/teams")}
+          ${menuLink("play", "Start Match", "#/admin")}
+          ${menuLink("flag", "Create Tournament", "#/admin")}
+          ${menuLink("stamp", "Register As Club", "#/admin")}
+        </div>
+        <div style="display:flex;flex-direction:column;padding:4px 20px 4px;border-top:1px solid var(--border);margin-top:4px">
+          ${menuActionLink("heart", "Following", "following")}
+          ${menuActionLink("gear", "Settings", "settings")}
+        </div>
+        <div style="text-align:center;padding-top:18px">
+          <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px">Follow Us On</div>
+          <div style="display:flex;justify-content:center;gap:14px;color:var(--text-dim)">
+            <span style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center">${socialIcon("f")}</span>
+            <span style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center">${socialIcon("ig")}</span>
+            <span style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center">${socialIcon("tw")}</span>
+            <span style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center">${socialIcon("yt")}</span>
+          </div>
+          <div style="font-size:10.5px;color:var(--text-faint);margin-top:16px">Super Friends · v1.0.0</div>
         </div>
       </div>
     </div>
   `);
   backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.remove(); });
   $$("a", backdrop).forEach((a) => a.addEventListener("click", () => backdrop.remove()));
+  $$("[data-action]", backdrop).forEach((a) => a.addEventListener("click", () => {
+    const action = a.dataset.action;
+    backdrop.remove();
+    if (action === "settings") openSettingsSheet();
+    else toast("Coming soon");
+  }));
   document.body.appendChild(backdrop);
 }
 function menuLink(icon, label, href) {
-  return `<a href="${href}" style="display:flex;align-items:center;gap:14px;padding:13px 6px;color:var(--text);font-weight:600;font-size:14.5px;border-bottom:1px solid var(--border)"><span style="color:var(--teal)">${ICON[icon]}</span>${label}</a>`;
+  return `<a href="${href}" style="display:flex;align-items:center;gap:16px;padding:13px 4px;color:var(--text);font-weight:600;font-size:14.5px"><span style="color:var(--teal);width:20px;display:flex">${ICON[icon]}</span>${label}</a>`;
+}
+function menuActionLink(icon, label, action) {
+  return `<a href="#" data-action="${action}" style="display:flex;align-items:center;gap:16px;padding:13px 4px;color:var(--text);font-weight:600;font-size:14.5px"><span style="color:var(--teal);width:20px;display:flex">${ICON[icon]}</span>${label}</a>`;
+}
+function socialIcon(kind) {
+  const paths = {
+    f: `<path d="M14 9h2V6h-2c-1.7 0-3 1.3-3 3v2H9v3h2v6h3v-6h2.2l.8-3H14V9.5c0-.3.2-.5.5-.5Z"/>`,
+    ig: `<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3.2"/><circle cx="16.2" cy="7.8" r=".8" fill="currentColor" stroke="none"/>`,
+    tw: `<path d="M21 5.5c-.7.4-1.5.7-2.3.8.8-.5 1.4-1.3 1.7-2.2-.8.5-1.6.8-2.6 1a3.6 3.6 0 0 0-6.2 3.3A10.4 10.4 0 0 1 4 4.6a3.6 3.6 0 0 0 1.1 4.8c-.7 0-1.4-.2-2-.5 0 1.7 1.2 3.2 2.9 3.6-.6.2-1.3.2-1.9.1.5 1.5 1.9 2.6 3.6 2.6a7.3 7.3 0 0 1-5.4 1.5c1.6 1 3.5 1.6 5.6 1.6 6.7 0 10.4-5.6 10.2-10.6.8-.5 1.4-1.2 1.9-2Z"/>`,
+    yt: `<rect x="3" y="6" width="18" height="12" rx="3"/><path d="M11 9.5l4 2.5-4 2.5v-5Z" fill="currentColor" stroke="none"/>`,
+  };
+  return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[kind]}</svg>`;
+}
+function openSettingsSheet() {
+  const backdrop = el(`
+    <div class="modal-backdrop">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div style="font-weight:700;font-size:15.5px;margin-bottom:14px">Settings</div>
+        <div class="result-row"><span>Dark mode</span><button class="btn btn-outline btn-sm" id="stThemeBtn">Toggle</button></div>
+        <div class="result-row"><span>Notifications</span><button class="btn btn-outline btn-sm" id="stNotifBtn">Enable</button></div>
+      </div>
+    </div>
+  `);
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.remove(); });
+  backdrop.querySelector("#stThemeBtn").addEventListener("click", () => {
+    toggleTheme();
+    $("#themeToggle").innerHTML = document.documentElement.getAttribute("data-theme") === "dark" ? ICON.sun : ICON.moon;
+  });
+  backdrop.querySelector("#stNotifBtn").addEventListener("click", requestNotifPermission);
+  document.body.appendChild(backdrop);
 }
 
 /* ---------------- router ---------------- */
