@@ -441,19 +441,41 @@ function formScheduleMatch(state) {
         <div class="field"><label>Team B</label><select name="teamB">${state.teams.map((t) => `<option value="${t.id}">${t.name}</option>`).join("")}</select></div>
       </div>
       <div class="field-row">
+        <div class="field"><label>Match Format</label>
+          <select name="format">
+            <option value="10">T10 (10 overs)</option>
+            <option value="20" selected>T20 (20 overs)</option>
+            <option value="50">One Day (50 overs)</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
         <div class="field"><label>Overs</label><input name="overs" type="number" value="20" min="1" /></div>
-        <div class="field"><label>Tournament</label><select name="tournament">${state.tournaments.map((t) => `<option value="${t.id}">${t.name}</option>`).join("")}</select></div>
       </div>
+      <div class="field"><label>Tournament</label><select name="tournament">${state.tournaments.map((t) => `<option value="${t.id}">${t.name}</option>`).join("")}</select></div>
       <div class="field"><label>Venue</label><input name="venue" placeholder="Stadium name" required /></div>
       <button class="btn btn-primary btn-block" type="submit">Schedule match ${ICON.plus}</button>
     </form>
   `);
+  const formatSelect = form.querySelector("select[name='format']");
+  const oversInput = form.querySelector("input[name='overs']");
+  formatSelect.addEventListener("change", () => {
+    if (formatSelect.value === "custom") {
+      oversInput.removeAttribute("readonly");
+      oversInput.focus();
+    } else {
+      oversInput.value = formatSelect.value;
+      oversInput.setAttribute("readonly", "readonly");
+    }
+  });
+  oversInput.setAttribute("readonly", "readonly");
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(form);
-    await DB.addMatch({ teamA: fd.get("teamA"), teamB: fd.get("teamB"), overs: Number(fd.get("overs")), tournament: fd.get("tournament"), venue: fd.get("venue"), status: "upcoming", startTime: Date.now(), innings: [] });
+    await DB.addMatch({ teamA: fd.get("teamA"), teamB: fd.get("teamB"), overs: Number(fd.get("overs")), format: formatSelect.value === "custom" ? "Custom" : formatSelect.options[formatSelect.selectedIndex].text, tournament: fd.get("tournament"), venue: fd.get("venue"), status: "upcoming", startTime: Date.now(), innings: [] });
     toast("Match scheduled.");
     form.reset();
+    oversInput.value = 20;
+    oversInput.setAttribute("readonly", "readonly");
   });
   return form;
 }
@@ -463,7 +485,7 @@ async function renderAdminScore(state, matchId) {
   const match = state.matches.find((m) => m.id === matchId);
   if (!match) return el(`<div class="empty-state">Match not found.</div>`);
 
-  if (!match.innings.length) return tossScreen(match);
+  if (!match.innings.length) return tossScreen(state, match);
 
   const wrap = el(`<div></div>`);
   const inn = ensureInnings(match);
@@ -659,26 +681,88 @@ function editScoreForm(match) {
   return form;
 }
 
-function tossScreen(match) {
+function tossScreen(state, match) {
   const wrap = el(`<div></div>`);
-  const teamAName = match.teamA, teamBName = match.teamB;
+  const teamA = teamById(state, match.teamA), teamB = teamById(state, match.teamB);
+
+  function squadOptions(teamId) {
+    const team = teamById(state, teamId);
+    const opts = team.squad.map((pid) => {
+      const p = playerById(state, pid);
+      return p ? `<option value="${p.id}">${p.name}</option>` : "";
+    }).join("");
+    return opts + `<option value="__other__">+ Add new player…</option>`;
+  }
+
   const form = el(`
     <form class="glass-card">
-      <div style="font-weight:700;font-size:15px;margin-bottom:12px">Toss</div>
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px">Toss</div>
+      <div style="font-size:12px;color:var(--text-faint);margin-bottom:12px">No squad players listed? Add them first from Admin → Player, then come back here.</div>
       <div class="field"><label>Toss won by</label>
-        <select name="winner"><option value="${match.teamA}">Team A</option><option value="${match.teamB}">Team B</option></select>
+        <select name="winner"><option value="${match.teamA}">${teamA.name}</option><option value="${match.teamB}">${teamB.name}</option></select>
       </div>
       <div class="field"><label>Decision</label>
         <select name="decision"><option value="bat">Bat first</option><option value="bowl">Bowl first</option></select>
       </div>
       <div class="field-row">
-        <div class="field"><input name="striker" required placeholder="Striker name" /></div>
-        <div class="field"><input name="nonStriker" required placeholder="Non-striker name" /></div>
+        <div class="field">
+          <label>Striker</label>
+          <select name="strikerSel">${squadOptions(match.teamA)}</select>
+          <input name="strikerOther" placeholder="New player name" style="display:none;margin-top:6px" />
+        </div>
+        <div class="field">
+          <label>Non-striker</label>
+          <select name="nonStrikerSel">${squadOptions(match.teamA)}</select>
+          <input name="nonStrikerOther" placeholder="New player name" style="display:none;margin-top:6px" />
+        </div>
       </div>
-      <div class="field"><input name="bowler" required placeholder="Opening bowler name" /></div>
+      <div class="field">
+        <label>Opening bowler</label>
+        <select name="bowlerSel">${squadOptions(match.teamB)}</select>
+        <input name="bowlerOther" placeholder="New player name" style="display:none;margin-top:6px" />
+      </div>
       <button class="btn btn-primary btn-block" type="submit">Start match ${ICON.bolt}</button>
     </form>
   `);
+
+  const winnerSel = form.querySelector("select[name='winner']");
+  const decisionSel = form.querySelector("select[name='decision']");
+  const strikerSel = form.querySelector("select[name='strikerSel']");
+  const nonStrikerSel = form.querySelector("select[name='nonStrikerSel']");
+  const bowlerSel = form.querySelector("select[name='bowlerSel']");
+
+  function currentBattingTeamId() {
+    const winner = winnerSel.value;
+    const decision = decisionSel.value;
+    return decision === "bat" ? winner : (winner === match.teamA ? match.teamB : match.teamA);
+  }
+  function refreshSquads() {
+    const battingId = currentBattingTeamId();
+    const bowlingId = battingId === match.teamA ? match.teamB : match.teamA;
+    strikerSel.innerHTML = squadOptions(battingId);
+    nonStrikerSel.innerHTML = squadOptions(battingId);
+    bowlerSel.innerHTML = squadOptions(bowlingId);
+  }
+  winnerSel.addEventListener("change", refreshSquads);
+  decisionSel.addEventListener("change", refreshSquads);
+
+  [["strikerSel", "strikerOther"], ["nonStrikerSel", "nonStrikerOther"], ["bowlerSel", "bowlerOther"]].forEach(([selName, otherName]) => {
+    const sel = form.querySelector(`select[name='${selName}']`);
+    const other = form.querySelector(`input[name='${otherName}']`);
+    sel.addEventListener("change", () => {
+      const isOther = sel.value === "__other__";
+      other.style.display = isOther ? "block" : "none";
+      other.required = isOther;
+    });
+  });
+
+  function resolveName(state, selName, otherName, fd) {
+    const selVal = fd.get(selName);
+    if (selVal === "__other__") return fd.get(otherName);
+    const p = playerById(state, selVal);
+    return p ? p.name : "Player";
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(form);
@@ -686,12 +770,15 @@ function tossScreen(match) {
     const decision = fd.get("decision");
     const battingTeam = decision === "bat" ? winner : (winner === match.teamA ? match.teamB : match.teamA);
     const bowlingTeam = battingTeam === match.teamA ? match.teamB : match.teamA;
+    const strikerName = resolveName(state, "strikerSel", "strikerOther", fd);
+    const nonStrikerName = resolveName(state, "nonStrikerSel", "nonStrikerOther", fd);
+    const bowlerName = resolveName(state, "bowlerSel", "bowlerOther", fd);
     await DB.updateMatch(match.id, (m) => {
       m.toss = { winner, decision };
       m.status = "live";
-      const striker = { id: "b_" + Math.random().toString(36).slice(2, 8), name: fd.get("striker"), runs: 0, balls: 0, fours: 0, sixes: 0, out: false, how: "" };
-      const nonStriker = { id: "b_" + Math.random().toString(36).slice(2, 8), name: fd.get("nonStriker"), runs: 0, balls: 0, fours: 0, sixes: 0, out: false, how: "" };
-      const bwl = { id: "bw_" + Math.random().toString(36).slice(2, 8), name: fd.get("bowler"), legalBalls: 0, runs: 0, wickets: 0, maidens: 0 };
+      const striker = { id: "b_" + Math.random().toString(36).slice(2, 8), name: strikerName, runs: 0, balls: 0, fours: 0, sixes: 0, out: false, how: "" };
+      const nonStriker = { id: "b_" + Math.random().toString(36).slice(2, 8), name: nonStrikerName, runs: 0, balls: 0, fours: 0, sixes: 0, out: false, how: "" };
+      const bwl = { id: "bw_" + Math.random().toString(36).slice(2, 8), name: bowlerName, legalBalls: 0, runs: 0, wickets: 0, maidens: 0 };
       m.innings = [{
         battingTeam, bowlingTeam, runs: 0, wickets: 0, legalBalls: 0,
         extras: { wide: 0, noball: 0, bye: 0, legbye: 0 },

@@ -180,7 +180,7 @@ function matchCardV2(state, m) {
   return el(`
     <a href="#/live/${m.id}" class="match-card-v2" style="min-width:280px;display:block;scroll-snap-align:start">
       <div class="mc-top">
-        <span>${m.tournament ? "GROUP A MATCH, T20" : "MATCH"}, ${isLive ? "Today" : dt.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+        <span>${m.tournament ? "GROUP A MATCH, " + (m.format || "T20") : "MATCH"}, ${isLive ? "Today" : dt.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
         ${isLive ? `<span class="mc-live">LIVE</span>` : `<span class="pill">Upcoming</span>`}
       </div>
       <div class="mc-teams">
@@ -389,12 +389,49 @@ async function renderTeam(state, id) {
   t.playingXI.forEach((pid) => xiCard.appendChild(squadRow(state, pid, t)));
   wrap.appendChild(xiCard);
 
-  wrap.appendChild(sectionHead("Full Squad"));
+  wrap.appendChild(el(`
+    <div class="section-head" style="margin-top:24px">
+      <h3>Full Squad</h3>
+      <a class="link" id="addMemberBtn" href="javascript:void(0)">+ Add Member</a>
+    </div>
+  `));
+  const addFormSlot = el(`<div></div>`);
+  wrap.appendChild(addFormSlot);
   const squadCard = el(`<div class="glass-card"></div>`);
   t.squad.forEach((pid) => squadCard.appendChild(squadRow(state, pid, t)));
   wrap.appendChild(squadCard);
 
+  $("#addMemberBtn", wrap).addEventListener("click", () => {
+    if ($(".add-member-form", addFormSlot)) return;
+    addFormSlot.appendChild(addMemberForm(t));
+  });
+
   return wrap;
+}
+
+function addMemberForm(team) {
+  const form = el(`
+    <form class="glass-card add-member-form" style="margin-bottom:12px">
+      <div class="field" style="margin-bottom:10px"><input name="name" required placeholder="Player name" autofocus /></div>
+      <div class="field-row" style="margin-bottom:0">
+        <button type="submit" class="btn btn-primary btn-sm">Add to ${team.short}</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="cancelAddMember">Cancel</button>
+      </div>
+    </form>
+  `);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = new FormData(form).get("name").trim();
+    if (!name) return;
+    const id = await DB.addPlayer({ name, role: "Batter", team: team.id, avg: 0, sr: 0, hs: 0, bowlAvg: null, economy: null });
+    const state = await DB.getState();
+    const t = teamById(state, team.id);
+    t.squad.push(id);
+    DB._emit();
+    toast(`${name} added to ${team.short}`);
+  });
+  $("#cancelAddMember", form).addEventListener("click", () => form.remove());
+  return form;
 }
 
 function squadRow(state, pid, team) {
