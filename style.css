@@ -1,0 +1,19 @@
+.calculator {
+  width: 300px;
+  margin: 50px auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+#display {
+  grid-column: 1 / 5;
+  height: 60px;
+  font-size: 25px;
+  text-align: right;
+}
+
+button {
+  height: 60px;
+  font-size: 22px;
+}
