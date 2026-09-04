@@ -1,6 +1,6 @@
 .calculator {
-  width: 300px;
-  margin: 50px auto;
+  width: 1000px;
+  margin: 500px auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
