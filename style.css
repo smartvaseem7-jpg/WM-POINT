@@ -10,6 +10,7 @@ h2 { text-align:center;
 li{margin:10px;
    font-size:18px;
    padding:10px;
+   border:2px solid black;
   }
    
 
