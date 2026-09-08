@@ -7,16 +7,19 @@ p { text-align:center;
    font-size: 18px;}
 h2 { text-align:center;
     font-size:28px;}
+ul{list-style:none;
+   padding:0;
+   width:90%;
+   margin:auto;}
 li{margin:10px auto;
    font-size:18px;
-   padding:0;
+   padding:15px;
    border-radius:10px;
    background-color:white;  
    width:80%;
    box-shadow:0 2px 8px gray;
    font-weight:bold;
-   color:darkgreen; 
-   list-style:none;
+   color:darkgreen;
   }
    li:hover {transform:scale(1.03);}
 
