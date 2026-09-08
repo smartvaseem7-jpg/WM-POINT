@@ -9,8 +9,9 @@ h2 { text-align:center;
     font-size:28px;}
 li{margin:10px;
    font-size:18px;
-   padding:10px;
-   border:2px solid black;
+   padding:15px;
+   border-radius:10px;
+   background-color:white;  
    width:80%;
   }
    
