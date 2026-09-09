@@ -27,4 +27,6 @@ li{margin:10px auto;
 .roll {color:blue;}
 .cutlet{color:red;}
 .rotti {color:orange;}
+button { display:block;
+        margin:10px auto;}
 
