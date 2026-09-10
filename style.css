@@ -28,5 +28,9 @@ li{margin:10px auto;
 .cutlet{color:red;}
 .rotti {color:orange;}
 button { display:block;
-        margin:10px auto;}
+        margin:10px auto;
+        padding:12px 25px;
+        font-size:18px;
+         border-radius:8px;
+         border:none; }
 
