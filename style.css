@@ -32,5 +32,7 @@ button { display:block;
         padding:12px 25px;
         font-size:18px;
          border-radius:8px;
-         border:none; }
+         border:none; 
+       background-color:green;
+       color:white;}
 
