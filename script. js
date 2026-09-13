@@ -1,1 +1,2 @@
+alert("JavaScript connected!");
 function ordernow (){alert ("welcome to WM tea shop!");}    
