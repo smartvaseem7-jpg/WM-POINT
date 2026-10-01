@@ -1,30 +1,42 @@
-<!DOCTYPE html > 
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WM Tea Shop - Billing</title>
+<link rel="stylesheet" href="style.css?v=18">
+<script src="script.js?v=3" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div><h1>WM TEA SHOP</h1><p>Billing Counter</p></div>
+    <div class="date" id="today"></div>
+  </header>
 
-  <head>
-    <title>WM TEA SHOP </title>
-    <link rel = "stylesheet" href="style.css?v=17">     
-<script src="script.js?v=2"defer></script>
-  </head> 
+  <section class="card">
+    <h2>Menu</h2>
+    <div class="menu-grid">
+      <button class="menu-item" data-name="Tea" data-price="100"><span>☕</span><b>Tea</b><small>Rs. 100</small></button>
+      <button class="menu-item" data-name="Roll" data-price="100"><span>🥐</span><b>Roll</b><small>Rs. 100</small></button>
+      <button class="menu-item" data-name="Cutlet" data-price="100"><span>🍘</span><b>Cutlet</b><small>Rs. 100</small></button>
+      <button class="menu-item" data-name="Rotti" data-price="50"><span>🫓</span><b>Rotti</b><small>Rs. 50</small></button>
+    </div>
+  </section>
 
-  
- <body>
-    <h1>WM TEA SHOP </h1>
-    <p>welcome to WM tea shop </p>
+  <section class="card">
+    <div class="section-title"><h2>Current Bill</h2><button id="clearBtn" class="danger">Clear</button></div>
+    <div id="cart" class="cart"><p class="empty">Tap an item above to add it.</p></div>
+    <div class="total-box"><span>Total</span><strong>Rs. <span id="total">0</span></strong></div>
+    <div class="payment">
+      <label>Cash Received</label>
+      <input id="cash" type="number" inputmode="decimal" placeholder="Enter cash amount">
+      <div class="change"><span>Balance / Change</span><strong>Rs. <span id="change">0</span></strong></div>
+    </div>
+    <button id="printBtn" class="print-btn">🧾 Print Bill</button>
+  </section>
 
-    <div class="menu">
-  
-    <h2>our menu</h2>
-      <button onclick="ordernow()">order now </button>
-    <ul>
-     <li class="tea">☕️tea- Rs. 100  </li>
-     <li class="roll">roll- Rs. 100 </li>
-     <li class="cutlet">cutlet-Rs. 100</li>
-     <li class="rotti">rotti- Rs.  50</li>
-    </ul>
- </div>
-    
-  </body>
-
+  <section id="receipt" class="receipt"></section>
+</div>
+</body>
 </html>
-  
