@@ -92,6 +92,30 @@ async function renderSales(){
     rows.map(i=>'<div class="sale-row"><span>'+i.name+'</span><span>'+i.qty+'</span><span>Rs. '+money(i.price)+'</span><span class="sale-total">Rs. '+money(i.total)+'</span></div>').join("")
     :'<p class="empty">No sales recorded for this date.</p>';
 }
+async function resetSelectedDate(){
+  const date=$("salesDate").value||todayKey();
+  const sales=salesCache.filter(b=>b && b.date===date);
+  if(!sales.length){
+    alert("No sales found for "+fmtDate(date)+".");
+    return;
+  }
+  if(!confirm("Delete all Firebase sales for "+fmtDate(date)+"?"))return;
+  try{
+    const snap=await salesRef.once("value");
+    const data=snap.val()||{};
+    const updates={};
+    Object.entries(data).forEach(([key,bill])=>{
+      if(bill && bill.date===date)updates[key]=null;
+    });
+    await salesRef.update(updates);
+    salesCache=salesCache.filter(b=>!b || b.date!==date);
+    await renderSales();
+    alert("Sales for "+fmtDate(date)+" have been reset.");
+  }catch(e){
+    console.error("Firebase reset error:",e);
+    alert("Reset failed. Please check Firebase Database Rules.");
+  }
+}
 async function saveCurrentBill(){
   const items=Object.values(cart);if(!items.length){alert("Please add items first.");return false}
   const total=items.reduce((s,i)=>s+i.price*i.qty,0),cash=Number($("cash").value)||0;
@@ -122,7 +146,7 @@ document.addEventListener("DOMContentLoaded",async()=>{
   document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showView(t.dataset.view)));
   document.querySelectorAll("[data-view]").forEach(b=>{if(!b.classList.contains("tab"))b.addEventListener("click",()=>showView(b.dataset.view))});
   $("salesTopBtn").addEventListener("click",()=>showView("sales"));
-  $("refreshSales").addEventListener("click",renderSales);
+  $("resetSales").addEventListener("click",resetSelectedDate);
   $("salesDate").addEventListener("change",renderSales);
   $("cash").addEventListener("input",updateChange);
   $("clearBtn").addEventListener("click",clearCart);
