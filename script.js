@@ -1,3 +1,17 @@
+const firebaseConfig={
+  apiKey:"AIzaSyA4Kh806eyIy3yjuRmmF6HSKM93xwtQ00A",
+  authDomain:"wm-point-e9196.firebaseapp.com",
+  databaseURL:"https://wm-point-e9196-default-rtdb.firebaseio.com",
+  projectId:"wm-point-e9196",
+  storageBucket:"wm-point-e9196.firebasestorage.app",
+  messagingSenderId:"708620946182",
+  appId:"1:708620946182:web:d8a7d1482306e9cd2dec87",
+  measurementId:"G-3ZKEJWBV18"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+const salesRef=db.ref("teaSales");
+
 const MENU=[
 {name:"Katlat",price:60,icon:"🥟"},
 {name:"Bisget Katlat",price:100,icon:"🥨"},
@@ -9,13 +23,24 @@ const MENU=[
 {name:"Lattu",price:40,icon:"🍡"}
 ];
 const cart={};
+let salesCache=[];
 const $=id=>document.getElementById(id);
-const storageKey="wm_point_tea_sales_v1";
 const todayKey=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const fmtDate=d=>new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric"});
-function loadSales(){try{return JSON.parse(localStorage.getItem(storageKey)||"[]")}catch(e){return[]}}
-function saveSales(data){localStorage.setItem(storageKey,JSON.stringify(data))}
 function money(n){return Number(n||0).toLocaleString("en-LK")}
+
+async function loadSales(){
+  try{
+    const snap=await salesRef.once("value");
+    const data=snap.val()||{};
+    salesCache=Object.values(data);
+  }catch(e){
+    console.error("Firebase load error:",e);
+    salesCache=[];
+  }
+  return salesCache;
+}
+
 function menuRender(){
   $("menuGrid").innerHTML=MENU.map(i=>'<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+i.icon+'</div><b>'+i.name+'</b><small>Rs. '+money(i.price)+'</small></button>').join("");
   document.querySelectorAll(".menu-item").forEach(btn=>btn.addEventListener("click",()=>{
@@ -46,12 +71,13 @@ function showView(view){
   if(view==="sales")renderSales();
   window.scrollTo({top:0,behavior:"smooth"});
 }
-function renderSales(){
+async function renderSales(){
   const date=$("salesDate").value||todayKey();
   $("salesDate").value=date;
-  const sales=loadSales().filter(x=>x.date===date);
+  await loadSales();
+  const sales=salesCache.filter(x=>x.date===date);
   let total=0,items=0,by={};
-  sales.forEach(b=>{total+=Number(b.total)||0;b.items.forEach(i=>{items+=i.qty;if(!by[i.name])by[i.name]={qty:0,total:0,price:i.price};by[i.name].qty+=i.qty;by[i.name].total+=i.price*i.qty})});
+  sales.forEach(b=>{total+=Number(b.total)||0;(b.items||[]).forEach(i=>{items+=i.qty;if(!by[i.name])by[i.name]={qty:0,total:0,price:i.price};by[i.name].qty+=i.qty;by[i.name].total+=i.price*i.qty})});
   $("billCount").textContent=sales.length;$("salesTotal").textContent=money(total);$("itemsSold").textContent=items;$("grandTotal").textContent=money(total);$("reportDate").textContent=fmtDate(date);
   const rows=Object.values(by);
   $("salesTable").innerHTML=rows.length?
@@ -59,13 +85,20 @@ function renderSales(){
     rows.map(i=>'<div class="sale-row"><span>'+i.name+'</span><span>'+i.qty+'</span><span>Rs. '+money(i.price)+'</span><span class="sale-total">Rs. '+money(i.total)+'</span></div>').join("")
     :'<p class="empty">No sales recorded for this date.</p>';
 }
-function saveCurrentBill(){
+async function saveCurrentBill(){
   const items=Object.values(cart);if(!items.length){alert("Please add items first.");return false}
   const total=items.reduce((s,i)=>s+i.price*i.qty,0),cash=Number($("cash").value)||0;
   if(cash<total){alert("Cash received is less than the bill total.");return false}
-  const sales=loadSales();
-  sales.push({id:Date.now(),date:todayKey(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),items:items.map(i=>({name:i.name,price:i.price,qty:i.qty})),total,cash,change:cash-total});
-  saveSales(sales);return {items,total,cash,change:cash-total};
+  const bill={id:Date.now(),date:todayKey(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),items:items.map(i=>({name:i.name,price:i.price,qty:i.qty})),total,cash,change:cash-total};
+  try{
+    await salesRef.child(String(bill.id)).set(bill);
+    salesCache.push(bill);
+    return bill;
+  }catch(e){
+    console.error("Firebase save error:",e);
+    alert("Firebase save failed. Please check Firebase Database Rules.");
+    return false;
+  }
 }
 function printBill(bill){
   const now=new Date();
@@ -76,8 +109,9 @@ function printBill(bill){
   w.document.write('<html><head><title>WM POINT Bill</title><style>body{font-family:monospace;padding:18px;color:#111}.receipt-line{display:flex;justify-content:space-between;padding:4px 0}</style></head><body>'+html+'</body></html>');
   w.document.close();w.focus();setTimeout(()=>w.print(),250);
 }
-document.addEventListener("DOMContentLoaded",()=>{
-  menuRender();render();$("salesDate").value=todayKey();renderSales();
+document.addEventListener("DOMContentLoaded",async()=>{
+  menuRender();render();$("salesDate").value=todayKey();
+  await renderSales();
   document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showView(t.dataset.view)));
   document.querySelectorAll("[data-view]").forEach(b=>{if(!b.classList.contains("tab"))b.addEventListener("click",()=>showView(b.dataset.view))});
   $("salesTopBtn").addEventListener("click",()=>showView("sales"));
@@ -85,8 +119,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("salesDate").addEventListener("change",renderSales);
   $("cash").addEventListener("input",updateChange);
   $("clearBtn").addEventListener("click",clearCart);
-  $("printBtn").addEventListener("click",()=>{
-    const bill=saveCurrentBill();if(!bill)return;
-    printBill(bill);clearCart();
+  $("printBtn").addEventListener("click",async()=>{
+    const btn=$("printBtn");btn.disabled=true;btn.textContent="Saving...";
+    const bill=await saveCurrentBill();
+    btn.disabled=false;btn.textContent="🧾 Save & Print Bill";
+    if(!bill)return;
+    printBill(bill);clearCart();renderSales();
   });
 });
