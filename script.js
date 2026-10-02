@@ -1,1 +1,92 @@
-const cart={};const $=id=>document.getElementById(id);function render(){const box=$("cart");const items=Object.values(cart);if(!items.length){box.innerHTML='<p class="empty">Tap an item above to add it.</p>';$("total").textContent="0";updateChange();return}let total=0;box.innerHTML=items.map(i=>{const sub=i.price*i.qty;total+=sub;return '<div class="cart-row"><div><div class="item-name">'+i.name+'</div><div class="price">Rs. '+i.price+' × '+i.qty+' = Rs. '+sub+'</div></div><div class="qty"><button onclick="changeQty(\''+i.name+'\',-1)">−</button><b>'+i.qty+'</b><button onclick="changeQty(\''+i.name+'\',1)">+</button><button class="remove" onclick="removeItem(\''+i.name+'\')">×</button></div></div>'}).join("");$("total").textContent=total;updateChange()}function changeQty(name,n){if(!cart[name])return;cart[name].qty+=n;if(cart[name].qty<=0)delete cart[name];render()}function removeItem(name){delete cart[name];render()}function updateChange(){const total=Number($("total").textContent)||0;const cash=Number($("cash").value)||0;$("change").textContent=Math.max(0,cash-total)}document.querySelectorAll(".menu-item").forEach(btn=>btn.addEventListener("click",()=>{const name=btn.dataset.name,price=Number(btn.dataset.price);if(cart[name])cart[name].qty++;else cart[name]={name,price,qty:1};render()}));$("cash").addEventListener("input",updateChange);$("clearBtn").addEventListener("click",()=>{Object.keys(cart).forEach(k=>delete cart[k]);$("cash").value="";render()});$("printBtn").addEventListener("click",()=>{const items=Object.values(cart);if(!items.length){alert("Please add items first.");return}const total=Number($("total").textContent),cash=Number($("cash").value)||0;let html='<h2>WM TEA SHOP</h2><div style="text-align:center">Billing Counter</div><hr>';items.forEach(i=>html+='<div class="receipt-line"><span>'+i.name+' × '+i.qty+'</span><span>Rs. '+(i.price*i.qty)+'</span></div>');html+='<hr><div class="receipt-line"><b>TOTAL</b><b>Rs. '+total+'</b></div><div class="receipt-line"><span>Cash</span><span>Rs. '+cash+'</span></div><div class="receipt-line"><b>Change</b><b>Rs. '+Math.max(0,cash-total)+'</b></div><p style="text-align:center">Thank you!</p>';$("receipt").innerHTML=html;window.print()});$("today").textContent=new Date().toLocaleDateString("en-GB");render();
+const MENU=[
+{name:"Katlat",price:60,icon:"🥟"},
+{name:"Bisget Katlat",price:100,icon:"🥨"},
+{name:"Poori",price:70,icon:"🫓"},
+{name:"Kahvatea",price:130,icon:"☕"},
+{name:"Tea",price:130,icon:"🍵"},
+{name:"Koli Appam",price:50,icon:"🥞"},
+{name:"Kawn Rotti",price:70,icon:"🫓"},
+{name:"Lattu",price:40,icon:"🍡"}
+];
+const cart={};
+const $=id=>document.getElementById(id);
+const storageKey="wm_point_tea_sales_v1";
+const todayKey=()=>{const d=new Date();return d.toISOString().slice(0,10)};
+const fmtDate=d=>new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric"});
+function loadSales(){try{return JSON.parse(localStorage.getItem(storageKey)||"[]")}catch(e){return[]}}
+function saveSales(data){localStorage.setItem(storageKey,JSON.stringify(data))}
+function money(n){return Number(n||0).toLocaleString("en-LK")}
+function menuRender(){
+  $("menuGrid").innerHTML=MENU.map(i=>'<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+i.icon+'</div><b>'+i.name+'</b><small>Rs. '+money(i.price)+'</small></button>').join("");
+  document.querySelectorAll(".menu-item").forEach(btn=>btn.addEventListener("click",()=>{
+    const name=btn.dataset.name,price=Number(btn.dataset.price);
+    if(cart[name])cart[name].qty++;else cart[name]={name,price,qty:1};
+    showView("billing");render();
+  }));
+}
+function render(){
+  const box=$("cart"),items=Object.values(cart);
+  if(!items.length){box.innerHTML='<p class="empty">Tap an item above to add it.</p>';$("total").textContent="0";$("totalItems").textContent="0";updateChange();return}
+  let total=0,count=0;
+  box.innerHTML=items.map(i=>{
+    const sub=i.price*i.qty;total+=sub;count+=i.qty;
+    const icon=(MENU.find(x=>x.name===i.name)||{}).icon||"🍽️";
+    return '<div class="cart-row"><div class="food-mini">'+icon+'</div><div class="cart-info"><div class="item-name">'+i.name+'</div><div class="price">Rs. '+money(i.price)+' × '+i.qty+' = Rs. '+money(sub)+'</div></div><div class="qty"><button onclick="changeQty(\''+i.name+'\',-1)">−</button><b>'+i.qty+'</b><button onclick="changeQty(\''+i.name+'\',1)">+</button><button class="remove" onclick="removeItem(\''+i.name+'\')">×</button></div></div>';
+  }).join("");
+  $("total").textContent=money(total);$("totalItems").textContent=count;updateChange();
+}
+function changeQty(name,n){if(!cart[name])return;cart[name].qty+=n;if(cart[name].qty<=0)delete cart[name];render()}
+function removeItem(name){delete cart[name];render()}
+function clearCart(){Object.keys(cart).forEach(k=>delete cart[k]);$("cash").value="";render()}
+function updateChange(){const total=Number(($("total").textContent||"0").replace(/,/g,""))||0;const cash=Number($("cash").value)||0;$("change").textContent=money(Math.max(0,cash-total))}
+function showView(view){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  const target=$(view+"View");if(target)target.classList.add("active");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===view));
+  if(view==="sales")renderSales();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderSales(){
+  const date=$("salesDate").value||todayKey();
+  $("salesDate").value=date;
+  const sales=loadSales().filter(x=>x.date===date);
+  let total=0,items=0,by={};
+  sales.forEach(b=>{total+=Number(b.total)||0;b.items.forEach(i=>{items+=i.qty;if(!by[i.name])by[i.name]={qty:0,total:0,price:i.price};by[i.name].qty+=i.qty;by[i.name].total+=i.price*i.qty})});
+  $("billCount").textContent=sales.length;$("salesTotal").textContent=money(total);$("itemsSold").textContent=items;$("grandTotal").textContent=money(total);$("reportDate").textContent=fmtDate(date);
+  const rows=Object.values(by);
+  $("salesTable").innerHTML=rows.length?
+    '<div class="sale-row sale-head"><span>Item Name</span><span>Qty</span><span>Rate</span><span>Total</span></div>'+
+    rows.map(i=>'<div class="sale-row"><span>'+i.name+'</span><span>'+i.qty+'</span><span>Rs. '+money(i.price)+'</span><span class="sale-total">Rs. '+money(i.total)+'</span></div>').join("")
+    :'<p class="empty">No sales recorded for this date.</p>';
+}
+function saveCurrentBill(){
+  const items=Object.values(cart);if(!items.length){alert("Please add items first.");return false}
+  const total=items.reduce((s,i)=>s+i.price*i.qty,0),cash=Number($("cash").value)||0;
+  if(cash<total){alert("Cash received is less than the bill total.");return false}
+  const sales=loadSales();
+  sales.push({id:Date.now(),date:todayKey(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),items:items.map(i=>({name:i.name,price:i.price,qty:i.qty})),total,cash,change:cash-total});
+  saveSales(sales);return {items,total,cash,change:cash-total};
+}
+function printBill(bill){
+  const now=new Date();
+  let html='<div style="text-align:center"><h2>WM POINT</h2><div>Tea Shop</div><small>'+fmtDate(todayKey())+' | '+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+'</small></div><hr>';
+  bill.items.forEach(i=>html+='<div class="receipt-line"><span>'+i.name+' × '+i.qty+'</span><span>Rs. '+money(i.price*i.qty)+'</span></div>');
+  html+='<hr><div class="receipt-line"><b>TOTAL</b><b>Rs. '+money(bill.total)+'</b></div><div class="receipt-line"><span>Cash</span><span>Rs. '+money(bill.cash)+'</span></div><div class="receipt-line"><b>Change</b><b>Rs. '+money(bill.change)+'</b></div><p style="text-align:center">Thank you!</p>';
+  const w=window.open("","_blank","width=420,height=650");if(!w){alert("Please allow the print window.");return}
+  w.document.write('<html><head><title>WM POINT Bill</title><style>body{font-family:monospace;padding:18px;color:#111}.receipt-line{display:flex;justify-content:space-between;padding:4px 0}</style></head><body>'+html+'</body></html>');
+  w.document.close();w.focus();setTimeout(()=>w.print(),250);
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  menuRender();render();$("salesDate").value=todayKey();renderSales();
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showView(t.dataset.view)));
+  document.querySelectorAll("[data-view]").forEach(b=>{if(!b.classList.contains("tab"))b.addEventListener("click",()=>showView(b.dataset.view))});
+  $("salesTopBtn").addEventListener("click",()=>showView("sales"));
+  $("refreshSales").addEventListener("click",renderSales);
+  $("salesDate").addEventListener("change",renderSales);
+  $("cash").addEventListener("input",updateChange);
+  $("clearBtn").addEventListener("click",clearCart);
+  $("printBtn").addEventListener("click",()=>{
+    const bill=saveCurrentBill();if(!bill)return;
+    printBill(bill);clearCart();
+  });
+});
