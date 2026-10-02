@@ -11,7 +11,7 @@ const MENU=[
 const cart={};
 const $=id=>document.getElementById(id);
 const storageKey="wm_point_tea_sales_v1";
-const todayKey=()=>{const d=new Date();return d.toISOString().slice(0,10)};
+const todayKey=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 const fmtDate=d=>new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric"});
 function loadSales(){try{return JSON.parse(localStorage.getItem(storageKey)||"[]")}catch(e){return[]}}
 function saveSales(data){localStorage.setItem(storageKey,JSON.stringify(data))}
