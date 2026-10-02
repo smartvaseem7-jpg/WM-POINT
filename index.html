@@ -3,40 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WM Tea Shop - Billing</title>
-<link rel="stylesheet" href="style.css?v=18">
-<script src="script.js?v=3" defer></script>
+<title>WM POINT - Tea Shop</title>
+<link rel="stylesheet" href="style.css?v=20">
+<script src="script.js?v=5" defer></script>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div><h1>WM TEA SHOP</h1><p>Billing Counter</p></div>
-    <div class="date" id="today"></div>
+    <div class="brand"><div class="logo">☕</div><div><h1>WM POINT</h1><p>Tea Shop</p></div></div>
+    <button id="salesTopBtn" class="icon-btn" title="Today Sales">📊</button>
   </header>
 
-  <section class="card">
-    <h2>Menu</h2>
-    <div class="menu-grid">
-      <button class="menu-item" data-name="Tea" data-price="100"><span>☕</span><b>Tea</b><small>Rs. 100</small></button>
-      <button class="menu-item" data-name="Roll" data-price="100"><span>🥐</span><b>Roll</b><small>Rs. 100</small></button>
-      <button class="menu-item" data-name="Cutlet" data-price="100"><span>🍘</span><b>Cutlet</b><small>Rs. 100</small></button>
-      <button class="menu-item" data-name="Rotti" data-price="50"><span>🫓</span><b>Rotti</b><small>Rs. 50</small></button>
-    </div>
-  </section>
+  <nav class="tabs">
+    <button class="tab active" data-view="home">⌂<span>Home</span></button>
+    <button class="tab" data-view="billing">🛒<span>Billing</span></button>
+    <button class="tab" data-view="sales">▥<span>Today Sales</span></button>
+  </nav>
 
-  <section class="card">
-    <div class="section-title"><h2>Current Bill</h2><button id="clearBtn" class="danger">Clear</button></div>
-    <div id="cart" class="cart"><p class="empty">Tap an item above to add it.</p></div>
-    <div class="total-box"><span>Total</span><strong>Rs. <span id="total">0</span></strong></div>
-    <div class="payment">
-      <label>Cash Received</label>
-      <input id="cash" type="number" inputmode="decimal" placeholder="Enter cash amount">
-      <div class="change"><span>Balance / Change</span><strong>Rs. <span id="change">0</span></strong></div>
-    </div>
-    <button id="printBtn" class="print-btn">🧾 Print Bill</button>
-  </section>
+  <main>
+    <section id="homeView" class="view active">
+      <div class="hero">
+        <div><small>WELCOME</small><h2>Good Food<br>Good Mood</h2><i></i></div>
+        <div class="hero-cup">☕</div>
+      </div>
+      <div class="section-head"><div><small>OUR MENU</small><h2>Choose Items</h2></div></div>
+      <div id="menuGrid" class="menu-grid"></div>
+    </section>
 
-  <section id="receipt" class="receipt"></section>
+    <section id="billingView" class="view">
+      <div class="page-title"><button class="back-btn" data-view="home">‹</button><div><small>NEW BILL</small><h2>Billing Counter</h2></div><button id="clearBtn" class="icon-btn">🗑</button></div>
+      <div id="cart" class="cart"></div>
+      <div class="bill-summary">
+        <div><span>Total Items</span><b id="totalItems">0</b></div>
+        <div class="grand-total"><span>Total Amount</span><strong>Rs. <span id="total">0</span></strong></div>
+      </div>
+      <div class="payment-card">
+        <label>Payment</label>
+        <div class="payment-options"><button class="pay active">💵 Cash</button><button class="pay">💳 Card</button></div>
+        <label>Cash Received</label>
+        <input id="cash" type="number" inputmode="decimal" placeholder="Enter cash amount">
+        <div class="change"><span>Change</span><strong>Rs. <span id="change">0</span></strong></div>
+      </div>
+      <button id="printBtn" class="print-btn">🧾 Save & Print Bill</button>
+    </section>
+
+    <section id="salesView" class="view">
+      <div class="page-title"><div><small>SALES REPORT</small><h2>Today Sales</h2></div><button id="refreshSales" class="icon-btn">↻</button></div>
+      <div class="date-picker"><span>📅</span><input id="salesDate" type="date"><span>View Date</span></div>
+      <div class="stats">
+        <div class="stat"><span>🧾</span><small>Total Bills</small><b id="billCount">0</b></div>
+        <div class="stat"><span>💰</span><small>Total Sales</small><b>Rs. <em id="salesTotal">0</em></b></div>
+        <div class="stat"><span>📦</span><small>Items Sold</small><b id="itemsSold">0</b></div>
+      </div>
+      <div class="sales-card"><div class="card-title"><h3>Sales Details</h3><small id="reportDate"></small></div><div id="salesTable"></div><div class="grand-report">Grand Total <b>Rs. <span id="grandTotal">0</span></b></div></div>
+    </section>
+  </main>
 </div>
 </body>
 </html>
