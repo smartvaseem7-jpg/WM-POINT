@@ -46,7 +46,7 @@ function menuRender(){
   document.querySelectorAll(".menu-item").forEach(btn=>btn.addEventListener("click",()=>{
     const name=btn.dataset.name,price=Number(btn.dataset.price);
     if(cart[name])cart[name].qty++;else cart[name]={name,price,qty:1};
-    showView("billing");render();
+    render();
   }));
 }
 function render(){
