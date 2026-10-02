@@ -42,11 +42,18 @@ async function loadSales(){
 }
 
 function menuRender(){
-  $("menuGrid").innerHTML=MENU.map(i=>'<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+i.icon+'</div><b>'+i.name+'</b><small>Rs. '+money(i.price)+'</small></button>').join("");
-  document.querySelectorAll(".menu-item").forEach(btn=>btn.addEventListener("click",()=>{
+  const menuHtml=MENU.map(i=>'<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+i.icon+'</div><b>'+i.name+'</b><small>Rs. '+money(i.price)+'</small></button>').join("");
+  $("menuGrid").innerHTML=menuHtml;
+  $("billingMenuGrid").innerHTML=menuHtml;
+  document.querySelectorAll("#menuGrid .menu-item").forEach(btn=>btn.addEventListener("click",()=>{
     const name=btn.dataset.name,price=Number(btn.dataset.price);
     if(cart[name])cart[name].qty++;else cart[name]={name,price,qty:1};
     showView("billing");render();
+  }));
+  document.querySelectorAll("#billingMenuGrid .menu-item").forEach(btn=>btn.addEventListener("click",()=>{
+    const name=btn.dataset.name,price=Number(btn.dataset.price);
+    if(cart[name])cart[name].qty++;else cart[name]={name,price,qty:1};
+    render();
   }));
 }
 function render(){
