@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WM POINT - Tea Shop</title>
 <link rel="stylesheet" href="style.css?v=20">
-<script src="script.js?v=5" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="script.js?v=6" defer></script>
 </head>
 <body>
 <div class="app">
@@ -13,23 +15,17 @@
     <div class="brand"><div class="logo">☕</div><div><h1>WM POINT</h1><p>Tea Shop</p></div></div>
     <button id="salesTopBtn" class="icon-btn" title="Today Sales">📊</button>
   </header>
-
   <nav class="tabs">
     <button class="tab active" data-view="home">⌂<span>Home</span></button>
     <button class="tab" data-view="billing">🛒<span>Billing</span></button>
     <button class="tab" data-view="sales">▥<span>Today Sales</span></button>
   </nav>
-
   <main>
     <section id="homeView" class="view active">
-      <div class="hero">
-        <div><small>WELCOME</small><h2>Good Food<br>Good Mood</h2><i></i></div>
-        <div class="hero-cup">☕</div>
-      </div>
+      <div class="hero"><div><small>WELCOME</small><h2>Good Food<br>Good Mood</h2><i></i></div><div class="hero-cup">☕</div></div>
       <div class="section-head"><div><small>OUR MENU</small><h2>Choose Items</h2></div></div>
       <div id="menuGrid" class="menu-grid"></div>
     </section>
-
     <section id="billingView" class="view">
       <div class="page-title"><button class="back-btn" data-view="home">‹</button><div><small>NEW BILL</small><h2>Billing Counter</h2></div><button id="clearBtn" class="icon-btn">🗑</button></div>
       <div id="cart" class="cart"></div>
@@ -46,7 +42,6 @@
       </div>
       <button id="printBtn" class="print-btn">🧾 Save & Print Bill</button>
     </section>
-
     <section id="salesView" class="view">
       <div class="page-title"><div><small>SALES REPORT</small><h2>Today Sales</h2></div><button id="refreshSales" class="icon-btn">↻</button></div>
       <div class="date-picker"><span>📅</span><input id="salesDate" type="date"><span>View Date</span></div>
