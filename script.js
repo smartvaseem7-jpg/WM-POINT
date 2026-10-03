@@ -137,11 +137,11 @@ async function saveCurrentBill(){
 }
 function printBill(bill){
   const now=new Date();
-  let html='<div style="text-align:center"><h2>WM POINT</h2><div>Tea Shop</div><small>'+fmtDate(todayKey())+' | '+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+'</small></div><hr>';
+  let html='<div style="text-align:center"><h2>CHAAI HAVEN</h2><div>Tea Shop</div><small>'+fmtDate(todayKey())+' | '+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+'</small></div><hr>';
   bill.items.forEach(i=>html+='<div class="receipt-line"><span>'+i.name+' × '+i.qty+'</span><span>Rs. '+money(i.price*i.qty)+'</span></div>');
   html+='<hr><div class="receipt-line"><b>TOTAL</b><b>Rs. '+money(bill.total)+'</b></div><div class="receipt-line"><span>Cash</span><span>Rs. '+money(bill.cash)+'</span></div><div class="receipt-line"><b>Change</b><b>Rs. '+money(bill.change)+'</b></div><p style="text-align:center">Thank you!</p>';
   const w=window.open("","_blank","width=420,height=650");if(!w){alert("Please allow the print window.");return}
-  w.document.write('<html><head><title>WM POINT Bill</title><style>body{font-family:monospace;padding:18px;color:#111}.receipt-line{display:flex;justify-content:space-between;padding:4px 0}</style></head><body>'+html+'</body></html>');
+  w.document.write('<html><head><title>CHAAI HAVEN Bill</title><style>body{font-family:monospace;padding:18px;color:#111}.receipt-line{display:flex;justify-content:space-between;padding:4px 0}</style></head><body>'+html+'</body></html>');
   w.document.close();w.focus();setTimeout(()=>w.print(),250);
 }
 document.addEventListener("DOMContentLoaded",async()=>{
