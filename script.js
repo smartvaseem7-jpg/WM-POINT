@@ -86,11 +86,15 @@ async function renderSales(){
   let total=0,items=0,by={};
   sales.forEach(b=>{total+=Number(b.total)||0;(b.items||[]).forEach(i=>{items+=i.qty;if(!by[i.name])by[i.name]={qty:0,total:0,price:i.price};by[i.name].qty+=i.qty;by[i.name].total+=i.price*i.qty})});
   $("billCount").textContent=sales.length;$("salesTotal").textContent=money(total);$("itemsSold").textContent=items;$("grandTotal").textContent=money(total);$("reportDate").textContent=fmtDate(date);
-  const rows=Object.values(by);
-  $("salesTable").innerHTML=rows.length?
+  const rows=MENU.map(m=>({
+    name:m.name,
+    qty:by[m.name]?.qty||0,
+    price:m.price,
+    total:by[m.name]?.total||0
+  }));
+  $("salesTable").innerHTML=
     '<div class="sale-row sale-head"><span>Item Name</span><span>Qty</span><span>Rate</span><span>Total</span></div>'+
-    rows.map(i=>'<div class="sale-row"><span>'+i.name+'</span><span>'+i.qty+'</span><span>Rs. '+money(i.price)+'</span><span class="sale-total">Rs. '+money(i.total)+'</span></div>').join("")
-    :'<p class="empty">No sales recorded for this date.</p>';
+    rows.map(i=>'<div class="sale-row"><span>'+i.name+'</span><span>'+i.qty+'</span><span>Rs. '+money(i.price)+'</span><span class="sale-total">Rs. '+money(i.total)+'</span></div>').join("");
 }
 async function resetSelectedDate(){
   const date=$("salesDate").value||todayKey();
