@@ -42,7 +42,7 @@ async function loadSales(){
 }
 
 function menuRender(){
-  const menuHtml=MENU.map(i=>{const visual=i.name==="Katlat"?'<img src="assets/katlat-web.jpg?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="https://raw.githubusercontent.com/smartvaseem7-jpg/WM-POINT/main/assets/bisget-katlat.jpg?v=2" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : i.icon;return '<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+visual+'<span class="price-badge">Rs. '+money(i.price)+'</span></div><b>'+i.name+'</b></button>'}).join("");
+  const menuHtml=MENU.map(i=>{const visual=i.name==="Katlat"?'<img src="assets/file_00000000a3f48208bdac065d8dbf3677.png?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="https://raw.githubusercontent.com/smartvaseem7-jpg/WM-POINT/main/assets/bisget-katlat.jpg?v=2" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : i.icon;return '<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+visual+'<span class="price-badge">Rs. '+money(i.price)+'</span></div><b>'+i.name+'</b></button>'}).join("");
   $("menuGrid").innerHTML=menuHtml;
   $("billingMenuGrid").innerHTML=menuHtml;
   document.querySelectorAll("#menuGrid .menu-item").forEach(btn=>btn.addEventListener("click",()=>{
@@ -63,7 +63,7 @@ function render(){
   box.innerHTML=items.map(i=>{
     const sub=i.price*i.qty;total+=sub;count+=i.qty;
     const itemData=MENU.find(x=>x.name===i.name)||{};
-    const icon=i.name==="Katlat"?'<img src="assets/katlat-web.jpg?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="https://raw.githubusercontent.com/smartvaseem7-jpg/WM-POINT/main/assets/bisget-katlat.jpg?v=2" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : (itemData.icon||"🍽️");
+    const icon=i.name==="Katlat"?'<img src="assets/file_00000000a3f48208bdac065d8dbf3677.png?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="https://raw.githubusercontent.com/smartvaseem7-jpg/WM-POINT/main/assets/bisget-katlat.jpg?v=2" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : (itemData.icon||"🍽️");
     return '<div class="cart-row"><div class="food-mini">'+icon+'</div><div class="cart-info"><div class="item-name">'+i.name+'</div><div class="price">Rs. '+money(i.price)+' × '+i.qty+' = Rs. '+money(sub)+'</div></div><div class="qty"><button onclick="changeQty(\''+i.name+'\',-1)">−</button><b>'+i.qty+'</b><button onclick="changeQty(\''+i.name+'\',1)">+</button><button class="remove" onclick="removeItem(\''+i.name+'\')">×</button></div></div>';
   }).join("");
   $("total").textContent=money(total);$("totalItems").textContent=count;updateChange();
@@ -87,12 +87,7 @@ async function renderSales(){
   let total=0,items=0,by={};
   sales.forEach(b=>{total+=Number(b.total)||0;(b.items||[]).forEach(i=>{items+=i.qty;if(!by[i.name])by[i.name]={qty:0,total:0,price:i.price};by[i.name].qty+=i.qty;by[i.name].total+=i.price*i.qty})});
   $("billCount").textContent=sales.length;$("salesTotal").textContent=money(total);$("itemsSold").textContent=items;$("grandTotal").textContent=money(total);$("reportDate").textContent=fmtDate(date);
-  const rows=MENU.map(m=>({
-    name:m.name,
-    qty:by[m.name]?.qty||0,
-    price:m.price,
-    total:by[m.name]?.total||0
-  }));
+  const rows=MENU.map(m=>({name:m.name,qty:by[m.name]?.qty||0,price:m.price,total:by[m.name]?.total||0}));
   $("salesTable").innerHTML=
     '<div class="sale-row sale-head"><span>Item Name</span><span>Qty</span><span>Rate</span><span>Total</span></div>'+
     rows.map(i=>'<div class="sale-row"><span>'+i.name+'</span><span>'+i.qty+'</span><span>Rs. '+money(i.price)+'</span><span class="sale-total">Rs. '+money(i.total)+'</span></div>').join("");
@@ -100,18 +95,13 @@ async function renderSales(){
 async function resetSelectedDate(){
   const date=$("salesDate").value||todayKey();
   const sales=salesCache.filter(b=>b && b.date===date);
-  if(!sales.length){
-    alert("No sales found for "+fmtDate(date)+".");
-    return;
-  }
+  if(!sales.length){alert("No sales found for "+fmtDate(date)+".");return}
   if(!confirm("Delete all Firebase sales for "+fmtDate(date)+"?"))return;
   try{
     const snap=await salesRef.once("value");
     const data=snap.val()||{};
     const updates={};
-    Object.entries(data).forEach(([key,bill])=>{
-      if(bill && bill.date===date)updates[key]=null;
-    });
+    Object.entries(data).forEach(([key,bill])=>{if(bill && bill.date===date)updates[key]=null});
     await salesRef.update(updates);
     salesCache=salesCache.filter(b=>!b || b.date!==date);
     await renderSales();
