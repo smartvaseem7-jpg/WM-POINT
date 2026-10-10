@@ -66,7 +66,7 @@ function menuRender(){
 }
 function render(){
   const box=$("cart"),items=Object.values(cart);
-  if(!items.length){box.innerHTML='<p class="empty">Tap an item above to add it.</p>';$("total").textContent="0";$("totalItems").textContent="0";updateChange();return}
+  if(!items.length){box.innerHTML='<p class="empty">Tap an item above to add it.</p>';$("total").textContent="0";$("totalItems").textContent="0";updateChange();updateBar();return}
   let total=0,count=0;
   box.innerHTML=items.map(i=>{
     const sub=i.price*i.qty;total+=sub;count+=i.qty;
@@ -74,7 +74,16 @@ function render(){
     const icon=itemVisual(i.name,itemData.icon||"🍽️");
     return '<div class="cart-row"><div class="food-mini">'+icon+'</div><div class="cart-info"><div class="item-name">'+i.name+'</div><div class="price">Rs. '+money(i.price)+' × '+i.qty+' = Rs. '+money(sub)+'</div></div><div class="qty"><button onclick="changeQty(\''+i.name+'\',-1)">−</button><b>'+i.qty+'</b><button onclick="changeQty(\''+i.name+'\',1)">+</button><button class="remove" onclick="removeItem(\''+i.name+'\')">×</button></div></div>';
   }).join("");
-  $("total").textContent=money(total);$("totalItems").textContent=count;updateChange();
+  $("total").textContent=money(total);$("totalItems").textContent=count;updateChange();updateBar();
+}
+function updateBar(){
+  const items=Object.values(cart);
+  $("dItems").textContent=items.reduce((a,i)=>a+i.qty,0);
+  $("dTotal").textContent=money(items.reduce((a,i)=>a+i.price*i.qty,0));
+}
+function openMenu(o){
+  $("menuDrawer").classList.toggle("open",o);
+  $("drawerBack").classList.toggle("open",o);
 }
 function changeQty(name,n){if(!cart[name])return;cart[name].qty+=n;if(cart[name].qty<=0)delete cart[name];render()}
 function removeItem(name){delete cart[name];render()}
@@ -84,7 +93,7 @@ function showView(view){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const target=$(view+"View");if(target)target.classList.add("active");
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===view));
-  if(view==="sales")renderSales();
+  if(view==="sales")renderSales();updateBar();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 async function renderSales(){
@@ -145,6 +154,10 @@ function printBill(bill){
 }
 document.addEventListener("DOMContentLoaded",async()=>{
   menuRender();render();$("salesDate").value=todayKey();
+  $("openMenu").addEventListener("click",()=>openMenu(true));
+  $("closeMenu").addEventListener("click",()=>openMenu(false));
+  $("doneMenu").addEventListener("click",()=>openMenu(false));
+  $("drawerBack").addEventListener("click",()=>openMenu(false));
   await renderSales();
   document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showView(t.dataset.view)));
   document.querySelectorAll("[data-view]").forEach(b=>{if(!b.classList.contains("tab"))b.addEventListener("click",()=>showView(b.dataset.view))});

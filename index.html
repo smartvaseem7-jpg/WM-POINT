@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHAAI HAVEN - Tea Shop</title>
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=25">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-<script src="script.js?v=18" defer></script>
+<script src="script.js?v=20" defer></script>
 </head>
 <body>
 <div class="app">
@@ -28,8 +28,7 @@
     </section>
     <section id="billingView" class="view">
       <div class="page-title"><div><small>NEW BILL</small><h2>Billing Counter</h2></div><button id="clearBtn" class="icon-btn">🗑</button></div>
-      <div class="section-head"><div><small>MENU</small><h3>Choose Items</h3></div></div>
-      <div id="billingMenuGrid" class="menu-grid"></div>
+      <button id="openMenu" class="add-items-btn">＋ Add Items</button>
       <div id="cart" class="cart"></div>
       <div class="bill-summary">
         <div><span>Total Items</span><b id="totalItems">0</b></div>
@@ -56,5 +55,11 @@
     </section>
   </main>
 </div>
+<div id="drawerBack" class="drawer-back"></div>
+<aside id="menuDrawer" class="drawer">
+  <div class="drawer-head"><h3>Choose Items</h3><button id="closeMenu" class="icon-btn">✕</button></div>
+  <div id="billingMenuGrid" class="menu-grid"></div>
+  <div class="drawer-foot"><span><b id="dItems">0</b> items · Rs. <b id="dTotal">0</b></span><button id="doneMenu">Done</button></div>
+</aside>
 </body>
 </html>
