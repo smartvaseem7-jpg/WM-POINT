@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHAAI HAVEN - Tea Shop</title>
-<link rel="stylesheet" href="style.css?v=27">
+<link rel="stylesheet" href="style.css?v=28">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-<script src="script.js?v=22" defer></script>
+<script src="script.js?v=23" defer></script>
 </head>
 <body>
 <div class="app">
@@ -46,12 +46,10 @@
     <section id="salesView" class="view">
       <div class="page-title"><div><small>SALES REPORT</small><h2>Today Sales</h2></div><button id="resetSales" class="icon-btn" title="Reset selected date">↻</button></div>
       <div class="date-picker"><span>📅</span><input id="salesDate" type="date"><span>View Date</span></div>
-      <div class="stats">
-        <div class="stat"><span>🧾</span><small>Total Bills</small><b id="billCount">0</b></div>
-        <div class="stat"><span>💰</span><small>Total Sales</small><b>Rs. <em id="salesTotal">0</em></b></div>
-        <div class="stat"><span>📦</span><small>Items Sold</small><b id="itemsSold">0</b></div>
-      </div>
-      <div class="sales-card"><div class="card-title"><h3>Sales Details</h3><small id="reportDate"></small></div><div id="salesTable"></div><div class="grand-report">Grand Total <b>Rs. <span id="grandTotal">0</span></b></div></div>
+      <div class="sales-hero"><small>TOTAL SALES</small><div class="big">Rs. <em id="salesTotal">0</em></div><div class="sub"><span><b id="billCount">0</b> bills</span><span><b id="itemsSold">0</b> items</span></div></div>
+      <div id="topSeller" class="top-seller"></div>
+      <div class="sales-card"><div class="card-title"><h3>Vitta Items</h3><small id="reportDate"></small></div><div id="salesTable"></div><div id="unsold" class="unsold"></div><div class="grand-report">Grand Total <b>Rs. <span id="grandTotal">0</span></b></div></div>
+      <div class="sales-card"><div class="card-title"><h3>Bills</h3><small id="billsNote"></small></div><div id="billsList"></div></div>
     </section>
   </main>
 </div>

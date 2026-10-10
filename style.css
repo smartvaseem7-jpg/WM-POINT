@@ -25,3 +25,31 @@
 .change.short{background:#4a1111;border:1px solid #ff5a5a}
 .change.short span,.change.short strong{color:#ff6b6b;font-weight:bold}
 .change.short strong{font-size:20px}
+
+.sales-hero{margin-top:13px;border-radius:20px;background:radial-gradient(circle at 85% 20%,#1a5a41,#0a231b 65%);border:1px solid #2a6a4f;padding:22px 20px}
+.sales-hero small{color:#72f28b;letter-spacing:2px;font-weight:bold;font-size:12px}
+.sales-hero .big{font-size:44px;font-weight:900;margin:6px 0 10px}
+.sales-hero .big em{color:#72f28b;font-style:normal}
+.sales-hero .sub{display:flex;gap:18px;color:#a9c4b9;font-size:15px}
+.sales-hero .sub b{color:#fff;font-size:17px}
+.top-seller{display:none;align-items:center;gap:14px;margin-top:13px;background:#2a2308;border:1px solid #8a7219;border-radius:16px;padding:14px 16px}
+.top-seller .trophy{font-size:38px}
+.top-seller small{display:block;color:#ffd43b;letter-spacing:1.5px;font-weight:bold;font-size:11px}
+.top-seller b{display:block;font-size:20px;margin:3px 0}
+.top-seller em{color:#e9d9a0;font-style:normal;font-size:14px}
+.srow,.brow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #19382e}
+.srow:last-child,.brow:last-child{border-bottom:0}
+.srow .food-mini{width:52px;height:52px;flex:none}
+.srow .food-mini img{object-fit:cover}
+.sinfo{flex:1;min-width:0}
+.sname{font-weight:bold;font-size:16px}
+.ssub{color:#8da89e;font-size:13px;margin:3px 0 6px}
+.sbar{height:7px;background:#15382b;border-radius:5px;overflow:hidden}
+.sbar i{display:block;height:100%;background:#72f28b;border-radius:5px}
+.srow .sale-total,.brow .sale-total{font-size:17px;font-weight:bold;white-space:nowrap}
+.unsold{color:#8da89e;font-size:13px;padding:12px 0 2px;line-height:1.5}
+.unsold b{color:#c9ddd3}
+.bno{flex:none;background:#153b2d;color:#72f28b;font-weight:bold;border-radius:10px;padding:8px 10px;font-size:14px}
+.binfo{flex:1;min-width:0}
+.btime{font-weight:bold;font-size:14px}
+.bitems{color:#a9c4b9;font-size:13px;margin-top:3px;line-height:1.4}

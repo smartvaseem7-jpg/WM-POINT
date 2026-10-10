@@ -115,14 +115,19 @@ async function renderSales(){
   const date=$("salesDate").value||todayKey();
   $("salesDate").value=date;
   await loadSales();
-  const sales=salesCache.filter(x=>x.date===date);
+  const sales=salesCache.filter(x=>x.date===date).sort((x,y)=>(x.id||0)-(y.id||0));
   let total=0,items=0,by={};
   sales.forEach(b=>{total+=Number(b.total)||0;(b.items||[]).forEach(i=>{items+=i.qty;if(!by[i.name])by[i.name]={qty:0,total:0,price:i.price};by[i.name].qty+=i.qty;by[i.name].total+=i.price*i.qty})});
   $("billCount").textContent=sales.length;$("salesTotal").textContent=money(total);$("itemsSold").textContent=items;$("grandTotal").textContent=money(total);$("reportDate").textContent=fmtDate(date);
-  const rows=MENU.map(m=>({name:m.name,qty:by[m.name]?.qty||0,price:m.price,total:by[m.name]?.total||0}));
-  $("salesTable").innerHTML=
-    '<div class="sale-row sale-head"><span>Item Name</span><span>Qty</span><span>Rate</span><span>Total</span></div>'+
-    rows.map(i=>'<div class="sale-row"><span>'+i.name+'</span><span>'+i.qty+'</span><span>Rs. '+money(i.price)+'</span><span class="sale-total">Rs. '+money(i.total)+'</span></div>').join("");
+  const sold=MENU.map(m=>({name:m.name,icon:m.icon,qty:by[m.name]?.qty||0,price:m.price,total:by[m.name]?.total||0})).filter(r=>r.qty>0).sort((x,y)=>y.qty-x.qty||y.total-x.total);
+  const unsold=MENU.filter(m=>!by[m.name]).map(m=>m.name);
+  const maxQty=sold.length?sold[0].qty:1;
+  $("topSeller").innerHTML=sold.length?'<span class="trophy">🏆</span><div><small>ATHIGAMA VITTADHU</small><b>'+sold[0].name+'</b><em>'+sold[0].qty+' vitrathu · Rs. '+money(sold[0].total)+'</em></div>':'';
+  $("topSeller").style.display=sold.length?"flex":"none";
+  $("salesTable").innerHTML=sold.length?sold.map(r=>'<div class="srow"><div class="food-mini">'+itemVisual(r.name,r.icon)+'</div><div class="sinfo"><div class="sname">'+r.name+'</div><div class="ssub">'+r.qty+' × Rs. '+money(r.price)+'</div><div class="sbar"><i style="width:'+Math.max(6,Math.round(r.qty/maxQty*100))+'%"></i></div></div><div class="sale-total">Rs. '+money(r.total)+'</div></div>').join(""):'<p class="empty">Indha naal edhuvum vikkala.</p>';
+  $("unsold").innerHTML=sold.length&&unsold.length?'<b>Vikkala:</b> '+unsold.join(", "):'';
+  $("billsNote").textContent=sales.length?sales.length+' bills':'';
+  $("billsList").innerHTML=sales.length?sales.slice().reverse().map((b,k)=>'<div class="brow"><div class="bno">#'+(sales.length-k)+'</div><div class="binfo"><div class="btime">'+(b.time||"")+'</div><div class="bitems">'+(b.items||[]).map(i=>i.name+' × '+i.qty).join(", ")+'</div></div><div class="sale-total">Rs. '+money(b.total)+'</div></div>').join(""):'<p class="empty">Bills illa.</p>';
 }
 async function resetSelectedDate(){
   const date=$("salesDate").value||todayKey();
