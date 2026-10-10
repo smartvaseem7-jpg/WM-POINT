@@ -96,7 +96,14 @@ function openMenu(o){
 function changeQty(name,n){if(!cart[name])return;cart[name].qty+=n;if(cart[name].qty<=0)delete cart[name];render()}
 function removeItem(name){delete cart[name];render()}
 function clearCart(){Object.keys(cart).forEach(k=>delete cart[k]);$("cash").value="";render()}
-function updateChange(){const total=Number(($("total").textContent||"0").replace(/,/g,""))||0;const cash=Number($("cash").value)||0;$("change").textContent=money(Math.max(0,cash-total))}
+function updateChange(){
+  const total=Number(($("total").textContent||"0").replace(/,/g,""))||0;
+  const cash=Number($("cash").value)||0;
+  const short=cash>0&&total>0&&cash<total;
+  $("changeBox").classList.toggle("short",short);
+  $("changeLabel").textContent=short?"⚠ Innum vaanganum":"Change";
+  $("change").textContent=money(short?total-cash:Math.max(0,cash-total));
+}
 function showView(view){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const target=$(view+"View");if(target)target.classList.add("active");

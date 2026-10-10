@@ -21,3 +21,7 @@
 .chip{display:flex;align-items:center;gap:7px;background:#153b2d;border:1px solid #315b4b;border-radius:20px;padding:5px 6px 5px 12px;font-size:14px}
 .chip button{border:0;background:#0b211b;color:#ff9c9c;border-radius:50%;width:24px;height:24px;font-size:16px;padding:0;cursor:pointer}
 .chips-empty{color:#78948a}
+
+.change.short{background:#4a1111;border:1px solid #ff5a5a}
+.change.short span,.change.short strong{color:#ff6b6b;font-weight:bold}
+.change.short strong{font-size:20px}

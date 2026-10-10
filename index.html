@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHAAI HAVEN - Tea Shop</title>
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-<script src="script.js?v=21" defer></script>
+<script src="script.js?v=22" defer></script>
 </head>
 <body>
 <div class="app">
@@ -39,7 +39,7 @@
         <div class="payment-options"><button class="pay active">💵 Cash</button><button class="pay">💳 Card</button></div>
         <label>Cash Received</label>
         <input id="cash" type="number" inputmode="decimal" placeholder="Enter cash amount">
-        <div class="change"><span>Change</span><strong>Rs. <span id="change">0</span></strong></div>
+        <div class="change" id="changeBox"><span id="changeLabel">Change</span><strong>Rs. <span id="change">0</span></strong></div>
       </div>
       <button id="printBtn" class="print-btn">🧾 Save & Print Bill</button>
     </section>
