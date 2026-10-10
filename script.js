@@ -165,7 +165,7 @@ async function saveCurrentBill(){
 }
 function printBill(bill){
   const now=new Date();
-  let html='<div style="text-align:center"><h2>CHAAI HAVEN</h2><div>Tea Shop</div><small>'+fmtDate(todayKey())+' | '+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+'</small></div><hr>';
+  let html='<div style="text-align:center"><h2>CHAAI HAVEN</h2><div>Tea Shop</div><div>Owner: Mubas</div><small>'+fmtDate(todayKey())+' | '+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+'</small></div><hr>';
   bill.items.forEach(i=>html+='<div class="receipt-line"><span>'+i.name+' × '+i.qty+'</span><span>Rs. '+money(i.price*i.qty)+'</span></div>');
   html+='<hr><div class="receipt-line"><b>TOTAL</b><b>Rs. '+money(bill.total)+'</b></div><div class="receipt-line"><span>Cash</span><span>Rs. '+money(bill.cash)+'</span></div><div class="receipt-line"><b>Change</b><b>Rs. '+money(bill.change)+'</b></div><p style="text-align:center">Thank you!</p>';
   const w=window.open("","_blank","width=420,height=650");if(!w){alert("Please allow the print window.");return}
@@ -194,3 +194,30 @@ document.addEventListener("DOMContentLoaded",async()=>{
     printBill(bill);clearCart();renderSales();
   });
 });
+
+/* ===== PIN LOCK ===== */
+const PIN_HASH="8a39c2fc02ac7014bba9e237fb03e01c3731f568b1b8ec1f4588d52e3fbb38c2";
+let pinBuf="",pinFails=0,pinBlockUntil=0;
+async function sha256(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")}
+function lockApp(){sessionStorage.removeItem("wmUnlocked");pinBuf="";drawPin();$("pinMsg").textContent="";$("lockScreen").classList.remove("hide")}
+function unlockApp(){sessionStorage.setItem("wmUnlocked","1");$("lockScreen").classList.add("hide")}
+function drawPin(){document.querySelectorAll("#pinDots i").forEach((d,k)=>d.classList.toggle("on",k<pinBuf.length))}
+async function pinPress(n){
+  if(Date.now()<pinBlockUntil){$("pinMsg").textContent="Konjam neram kazhichu try pannunga";return}
+  if(pinBuf.length>=5)return;
+  pinBuf+=n;drawPin();$("pinMsg").textContent="";
+  if(pinBuf.length<5)return;
+  let ok=false;
+  try{ok=(await sha256(pinBuf))===PIN_HASH}catch(e){ok=false}
+  if(ok){pinFails=0;unlockApp();pinBuf="";drawPin();return}
+  pinFails++;
+  $("pinDots").classList.add("bad");
+  setTimeout(()=>{$("pinDots").classList.remove("bad");pinBuf="";drawPin()},450);
+  if(pinFails>=5){pinBlockUntil=Date.now()+30000;pinFails=0;$("pinMsg").textContent="5 thadava thappu. 30 second wait pannunga"}
+  else $("pinMsg").textContent="Thappaana PIN";
+}
+document.querySelectorAll(".keypad button:not(.k-del):not(.k-empty)").forEach(b=>b.addEventListener("click",()=>pinPress(b.textContent)));
+$("pinDel").addEventListener("click",()=>{pinBuf=pinBuf.slice(0,-1);drawPin()});
+$("lockBtn").addEventListener("click",lockApp);
+if(sessionStorage.getItem("wmUnlocked")==="1")$("lockScreen").classList.add("hide");
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));

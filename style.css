@@ -53,3 +53,23 @@
 .binfo{flex:1;min-width:0}
 .btime{font-weight:bold;font-size:14px}
 .bitems{color:#a9c4b9;font-size:13px;margin-top:3px;line-height:1.4}
+
+.lock-screen{position:fixed;inset:0;z-index:100;background:#061511;display:flex;align-items:center;justify-content:center;padding:20px}
+.lock-screen.hide{display:none}
+.lock-box{width:100%;max-width:340px;text-align:center}
+.lock-logo{width:92px;height:92px;border-radius:22px;box-shadow:0 8px 24px #000a}
+.lock-box h2{margin:16px 0 14px;font-size:22px}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:8px}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid #4b7a66}
+.pin-dots i.on{background:#72f28b;border-color:#72f28b}
+.pin-dots.bad{animation:shake .4s}
+.pin-dots.bad i{border-color:#ff6b6b;background:#ff6b6b}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-msg{height:20px;color:#ff8a8a;font-size:14px;margin-bottom:10px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.keypad button{height:68px;border-radius:50%;border:1px solid #315b4b;background:#102a22;color:#fff;font-size:26px;font-weight:bold;cursor:pointer}
+.keypad button:active{background:#1d4a38}
+.keypad .k-empty{visibility:hidden}
+.keypad .k-del{font-size:22px;color:#ff9c9c}
+.top-actions{display:flex;gap:8px}
+.logo-img{width:44px;height:44px;border-radius:11px;display:block}

@@ -3,17 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CHAAI HAVEN - Tea Shop</title>
-<link rel="stylesheet" href="style.css?v=28">
+<meta name="theme-color" content="#061511">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chaai Haven">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Chaai Haven Tea Shop</title>
+<link rel="stylesheet" href="style.css?v=31">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-<script src="script.js?v=23" defer></script>
+<script src="script.js?v=26" defer></script>
 </head>
 <body>
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-box">
+    <img src="icon-192.png" alt="Chaai Haven" class="lock-logo">
+    <h2>PIN Podunga</h2>
+    <div id="pinDots" class="pin-dots"><i></i><i></i><i></i><i></i><i></i></div>
+    <div id="pinMsg" class="pin-msg"></div>
+    <div class="keypad">
+      <button>1</button><button>2</button><button>3</button>
+      <button>4</button><button>5</button><button>6</button>
+      <button>7</button><button>8</button><button>9</button>
+      <button class="k-empty" disabled></button><button>0</button><button id="pinDel" class="k-del">⌫</button>
+    </div>
+  </div>
+</div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="logo">☕</div><div><h1>CHAAI HAVEN</h1><p>Tea Shop</p></div></div>
-    <button id="salesTopBtn" class="icon-btn" title="Today Sales">📊</button>
+    <div class="brand"><img class="logo-img" src="icon-192.png" alt="Chaai Haven"><div><h1>CHAAI HAVEN</h1><p>Tea Shop · Owner: Mubas</p></div></div>
+    <div class="top-actions"><button id="lockBtn" class="icon-btn" title="Lock">🔒</button><button id="salesTopBtn" class="icon-btn" title="Today Sales">📊</button></div>
   </header>
   <nav class="tabs">
     <button class="tab active" data-view="home">⌂<span>Home</span></button>
