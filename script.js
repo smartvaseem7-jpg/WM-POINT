@@ -42,7 +42,7 @@ async function loadSales(){
 }
 
 function menuRender(){
-  const menuHtml=MENU.map(i=>{const visual=i.name==="Katlat"?'<img src="assets/file_00000000a3f48208bdac065d8dbf3677.png?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="https://raw.githubusercontent.com/smartvaseem7-jpg/WM-POINT/main/assets/bisget-katlat.jpg?v=2" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : i.icon;return '<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+visual+'</div><span class="price-badge">Rs. '+money(i.price)+'</span><b>'+i.name+'</b></button>'}).join("");
+  const menuHtml=MENU.map(i=>{const visual=i.name==="Katlat"?'<img src="assets/file_00000000a3f48208bdac065d8dbf3677.png?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="assets/bisget-katlat.jpg?v=4" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : i.icon;return '<button class="menu-item" data-name="'+i.name+'" data-price="'+i.price+'"><div class="food-icon">'+visual+'</div><span class="price-badge">Rs. '+money(i.price)+'</span><b>'+i.name+'</b></button>'}).join("");
   $("menuGrid").innerHTML=menuHtml;
   $("billingMenuGrid").innerHTML=menuHtml;
   document.querySelectorAll("#menuGrid .menu-item").forEach(btn=>btn.addEventListener("click",()=>{
@@ -63,7 +63,7 @@ function render(){
   box.innerHTML=items.map(i=>{
     const sub=i.price*i.qty;total+=sub;count+=i.qty;
     const itemData=MENU.find(x=>x.name===i.name)||{};
-    const icon=i.name==="Katlat"?'<img src="assets/file_00000000a3f48208bdac065d8dbf3677.png?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="https://raw.githubusercontent.com/smartvaseem7-jpg/WM-POINT/main/assets/bisget-katlat.jpg?v=2" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : (itemData.icon||"🍽️");
+    const icon=i.name==="Katlat"?'<img src="assets/file_00000000a3f48208bdac065d8dbf3677.png?v=1" alt="Katlat">' : i.name==="Bisget Katlat"?'<img src="assets/bisget-katlat.jpg?v=4" alt="Bisget Katlat">' : i.name==="Poori"?'<img src="assets/poori.jpg?v=1" alt="Poori">' : (itemData.icon||"🍽️");
     return '<div class="cart-row"><div class="food-mini">'+icon+'</div><div class="cart-info"><div class="item-name">'+i.name+'</div><div class="price">Rs. '+money(i.price)+' × '+i.qty+' = Rs. '+money(sub)+'</div></div><div class="qty"><button onclick="changeQty(\''+i.name+'\',-1)">−</button><b>'+i.qty+'</b><button onclick="changeQty(\''+i.name+'\',1)">+</button><button class="remove" onclick="removeItem(\''+i.name+'\')">×</button></div></div>';
   }).join("");
   $("total").textContent=money(total);$("totalItems").textContent=count;updateChange();
