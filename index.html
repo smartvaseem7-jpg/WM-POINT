@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHAAI HAVEN - Tea Shop</title>
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="style.css?v=26">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-<script src="script.js?v=20" defer></script>
+<script src="script.js?v=21" defer></script>
 </head>
 <body>
 <div class="app">
@@ -59,7 +59,7 @@
 <aside id="menuDrawer" class="drawer">
   <div class="drawer-head"><h3>Choose Items</h3><button id="closeMenu" class="icon-btn">✕</button></div>
   <div id="billingMenuGrid" class="menu-grid"></div>
-  <div class="drawer-foot"><span><b id="dItems">0</b> items · Rs. <b id="dTotal">0</b></span><button id="doneMenu">Done</button></div>
+  <div class="drawer-foot"><div id="dChips" class="chips"></div><div class="foot-row"><span><b id="dItems">0</b> items · Rs. <b id="dTotal">0</b></span><button id="doneMenu">Done</button></div></div>
 </aside>
 </body>
 </html>

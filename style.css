@@ -11,3 +11,13 @@
 .drawer-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-top:1px solid #1d4638;background:#0b211b;font-size:16px}
 .drawer-foot b{color:#72f28b}
 .drawer-foot button{border:0;background:#72f28b;color:#062014;font-weight:bold;border-radius:11px;padding:12px 26px;font-size:16px;cursor:pointer}
+
+.menu-item{position:relative}
+.menu-item.selected{border-color:#72f28b;box-shadow:0 0 0 2px #72f28b55,0 7px 18px #0006}
+.qty-badge{position:absolute;top:8px;right:8px;z-index:2;background:#ffd43b;color:#111;font-weight:900;font-size:16px;min-width:30px;height:30px;padding:0 6px;border-radius:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 9px #000a}
+.drawer-foot{flex-direction:column;align-items:stretch;gap:10px}
+.foot-row{display:flex;justify-content:space-between;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-height:100px;overflow-y:auto}
+.chip{display:flex;align-items:center;gap:7px;background:#153b2d;border:1px solid #315b4b;border-radius:20px;padding:5px 6px 5px 12px;font-size:14px}
+.chip button{border:0;background:#0b211b;color:#ff9c9c;border-radius:50%;width:24px;height:24px;font-size:16px;padding:0;cursor:pointer}
+.chips-empty{color:#78948a}

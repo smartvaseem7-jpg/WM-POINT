@@ -80,6 +80,14 @@ function updateBar(){
   const items=Object.values(cart);
   $("dItems").textContent=items.reduce((a,i)=>a+i.qty,0);
   $("dTotal").textContent=money(items.reduce((a,i)=>a+i.price*i.qty,0));
+  $("dChips").innerHTML=items.length?items.map(i=>'<div class="chip"><span>'+i.name+' × '+i.qty+'</span><button onclick="changeQty(\''+i.name+'\',-1)">−</button></div>').join(""):'<small class="chips-empty">Item thottina inga theriyum</small>';
+  document.querySelectorAll("#billingMenuGrid .menu-item").forEach(btn=>{
+    const q=cart[btn.dataset.name]?cart[btn.dataset.name].qty:0;
+    let b=btn.querySelector(".qty-badge");
+    if(q>0){if(!b){b=document.createElement("span");b.className="qty-badge";btn.appendChild(b)}b.textContent=q}
+    else if(b)b.remove();
+    btn.classList.toggle("selected",q>0);
+  });
 }
 function openMenu(o){
   $("menuDrawer").classList.toggle("open",o);
