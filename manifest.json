@@ -1,12 +1,12 @@
 {
- "name": "Chaai Haven Tea Shop",
- "short_name": "Chaai Haven",
+ "name": "Chai & Chill Tea Shop",
+ "short_name": "Chai & Chill",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",
  "orientation": "portrait",
- "background_color": "#061511",
- "theme_color": "#061511",
+ "background_color": "#0a0806",
+ "theme_color": "#0a0806",
  "icons": [
   {
    "src": "icon-192.png",
