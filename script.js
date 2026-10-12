@@ -27,7 +27,8 @@ const IMAGES={
 "Bisget Katlat":"assets/bisget-katlat.jpg?v=4",
 "Poori":"assets/poori.jpg?v=1",
 "Kahvatea":"assets/kahwa-tea.jpg?v=1",
-"Koli Appam":"assets/koli-appam.jpg?v=1"
+"Koli Appam":"assets/koli-appam.jpg?v=1",
+"Kawn Rotti":"assets/kawn-rotti.jpg?v=1"
 };
 function itemVisual(name,fallback){return IMAGES[name]?'<img src="'+IMAGES[name]+'" alt="'+name+'">':fallback}
 const cart={};
