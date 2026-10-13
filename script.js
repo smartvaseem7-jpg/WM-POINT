@@ -20,7 +20,9 @@ const MENU=[
 {name:"Tea",price:130,icon:"🍵"},
 {name:"Koli Appam",price:50,icon:"🥞"},
 {name:"Kawn Rotti",price:70,icon:"🫓"},
-{name:"Lattu",price:40,icon:"🍡"}
+{name:"Lattu",price:40,icon:"🍡"},
+{name:"Pettis",price:50,icon:"🥟"},
+{name:"Masala Dosa",price:100,icon:"🌯"}
 ];
 const IMAGES={
 "Katlat":"assets/file_00000000a3f48208bdac065d8dbf3677.png?v=1",
